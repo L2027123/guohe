@@ -1,0 +1,43 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor directories
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Test scripts and temp output
+platform-test.mjs
+report.txt
+e2e-test.mjs
+zip-dist.mjs
+debug_ai_raw.js
+debug_json_pos.js
+ai_raw.txt
+debug_raw_output.txt
+test_vd_fixed.js
+test_vd_simple.js
+test_videodirector_chain.js
+
+# Binary files
+*.exe
+*.zip
+*.traineddata
