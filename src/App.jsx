@@ -78,13 +78,13 @@ export default function App() {
       <Route path="/admin/analytics" element={<AdminAnalytics />} />
       {/* /case-study Beta 案例展示页（用于小红书获客，独立全屏） */}
       <Route path="/case-study" element={<CaseStudy />} />
-      {/* 爆款拆解：核心入口不受 ProtectedGuard 限制，新用户可直接体验 */}
+      {/* 公开页面：新用户可直接体验，不需要完成 Onboarding */}
       <Route element={<Layout />}>
+        <Route path="dashboard" element={<Dashboard />} />
         <Route path="workbench/competitor-analyzer" element={<CompetitorAnalyzer />} />
       </Route>
       {/* ===== 受保护路由：必须完成 onboarding + 至少有一个项目 ===== */}
       <Route element={<ProtectedGuard><Layout /></ProtectedGuard>}>
-        <Route path="dashboard" element={<Dashboard />} />
         {/* ===== V3：工作台路由 ===== */}
         <Route path="workbench/opportunity-radar" element={<OpportunityRadar />} />
         <Route path="workbench/account-brain" element={<AccountBrain />} />
