@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, useLocation, Link } from 'react-router-dom'
-import { Key, User, CreditCard, AlertTriangle, Check, Eye, EyeOff, Loader2, X, ArrowLeft, ExternalLink } from 'lucide-react'
+import { Key, User, CreditCard, AlertTriangle, Check, Eye, EyeOff, Loader2, X, ArrowLeft, ExternalLink, RotateCcw } from 'lucide-react'
 import { useStore } from '../store/useStore'
 import { testAPIConnection } from '../utils/aiClient'
 
@@ -46,6 +46,18 @@ export default function Settings() {
       setSaved(true)
       setTestResult(null)
       setTimeout(() => setSaved(false), 2000)
+    }
+  }
+
+  // 清除用户配置的 Key，恢复到内置试用 Key（不会清空项目/内容）
+  const handleClearKey = () => {
+    if (confirm('清除后将恢复使用内置试用 Key 继续体验爆款拆解。\n你的项目、内容、规则都不会丢失。\n\n确认清除？')) {
+      localStorage.removeItem('contentos_api_key')
+      setKeyStatus(false)
+      setApiKey('')
+      setTestResult(null)
+      setSaved(false)
+      alert('已恢复到试用模式')
     }
   }
 
@@ -120,8 +132,8 @@ export default function Settings() {
                   <Check size={10} /> 已配置
                 </span>
               ) : (
-                <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-amber-50 text-amber-600 font-medium">
-                  需要配置
+                <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-green-50 text-green-600 font-medium flex items-center gap-1">
+                  <Check size={10} /> 试用模式
                 </span>
               )}
             </div>
@@ -203,7 +215,7 @@ export default function Settings() {
               </div>
             )}
             {/* 测试连接 */}
-            <div className="mt-3 flex items-center gap-3">
+            <div className="mt-3 flex items-center gap-3 flex-wrap">
               <button
                 onClick={handleTestConnection}
                 disabled={testing || (!apiKey.trim() && !keyStatus)}
@@ -233,6 +245,21 @@ export default function Settings() {
                 </span>
               )}
             </div>
+            {/* 恢复试用模式：仅当用户已配置自己的 Key 时显示 */}
+            {keyStatus && (
+              <div className="mt-4 pt-4 border-t border-gray-50 flex items-center justify-between">
+                <div className="text-xs text-gray-500">
+                  填错了 Key？可以清除并恢复到试用模式继续体验
+                </div>
+                <button
+                  onClick={handleClearKey}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-green-50 text-green-700 hover:bg-green-100 transition-colors"
+                >
+                  <RotateCcw size={12} />
+                  恢复试用模式
+                </button>
+              </div>
+            )}
           </div>
 
           {/* 智谱 API Key 配置（截图识别用） */}
