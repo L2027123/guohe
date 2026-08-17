@@ -258,13 +258,23 @@ export default function CompetitorAnalyzer() {
 
     const apiKey = localStorage.getItem('contentos_api_key')
     if (!apiKey) {
-      setError('请先连接 AI 服务，再开始拆解')
+      setError('需要 DeepSeek API Key 才能开始拆解，请到「设置」配置（新用户有免费额度）')
       return
+    }
+
+    // 自动创建默认项目（新用户从 Landing 进来没有项目时）
+    let projectId = currentProjectId
+    if (!projectId) {
+      projectId = createProject({
+        name: '我的第一个账号',
+        platform: '小红书',
+        category: userDomain || '内容创作',
+      })
     }
 
     // 额度校验：免费体验限制
     if (!hasCredit('competitorAnalyze')) {
-      setError('你的账号大脑已经建立，升级后可继续学习和生成。')
+      setError('免费体验额度已用完，升级 Pro 可无限拆解，或分享报告解锁更多次数')
       return
     }
 
@@ -281,15 +291,14 @@ export default function CompetitorAnalyzer() {
       const text = await callAI(
         apiKey,
         buildAnalysisPrompt({ title: analyzeTitle, content: analyzeContent, description, accountSummary }),
-        { temperature: 0.7, max_tokens: 4000, timeout: 60000 }
+        { temperature: 0.7, max_tokens: 1500, timeout: 60000 }
       )
       const parsed = parseAnalysisResult(text)
       if (parsed) {
-        // 成功后再扣减额度
         consumeCredit('competitorAnalyze')
         setAnalysisResult(parsed)
       } else {
-        setError('AI 返回格式异常，请重试')
+        setError('AI 返回格式异常，请重试，或检查 API Key 是否有效')
       }
     } catch (err) {
       const errInfo = classifyAIError(err)
@@ -433,8 +442,8 @@ export default function CompetitorAnalyzer() {
               <Flame size={20} />
             </div>
             <div>
-              <h1 className="text-xl font-semibold text-gray-900">爆款实验室</h1>
-              <p className="text-sm text-gray-500 mt-0.5">拆解爆款 → 还原高手决策 → 找到我的机会</p>
+              <h1 className="text-xl font-semibold text-gray-900">爆款拆解</h1>
+              <p className="text-sm text-gray-500 mt-0.5">粘贴爆款内容 / 上传截图 → AI 拆解设计机关 → 找到我的机会</p>
             </div>
           </div>
           {currentProject && (

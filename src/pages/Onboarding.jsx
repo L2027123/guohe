@@ -24,7 +24,7 @@ import { useStore } from '../store/useStore'
 import { callAI, classifyAIError } from '../utils/aiClient'
 import { trackEvent, trackOnboardingStepEnter } from '../utils/tracker'
 import AIErrorBanner from '../components/AIErrorBanner'
-import { recognizeImage, isOCRFirstInit } from '../utils/ocr'
+import { smartRecognize } from '../utils/visionOCR'
 
 const ACCOUNT_TYPES = [
   { id: 'xiaohongshu', name: '小红书个人IP', emoji: '📕', desc: '图文笔记 + 种草' },
@@ -93,7 +93,7 @@ function ScreenshotAnalyzer({ onAnalyzed, hint }) {
     setError('')
     setStatus('analyzing')
     setProgress('正在读取图片...')
-    setOcrPhase(isOCRFirstInit() ? 'init' : 'ocr')
+    setOcrPhase('vision')
     setOcrProgress(0)
 
     // 显示预览
@@ -102,13 +102,11 @@ function ScreenshotAnalyzer({ onAnalyzed, hint }) {
     reader.readAsDataURL(file)
 
     try {
-      // 第一步：浏览器端 OCR 提取文字（不需要 API Key）
-      setProgress(ocrPhase === 'init' ? '加载识别字库中...' : '正在识别文字...')
-      const ocrText = await recognizeImage(file, (phase, pct) => {
+      // 使用 glm-4v-flash 视觉模型识别（统一视觉 OCR 体验）
+      const { text: ocrText } = await smartRecognize(file, (phase, pct) => {
         setOcrPhase(phase)
         setOcrProgress(pct)
-        if (phase === 'init') setProgress(`加载识别字库中（约15MB）... ${pct}%`)
-        else setProgress(`正在识别文字... ${pct}%`)
+        setProgress(`AI 视觉识别中... ${pct}%`)
       })
 
       if (!ocrText || ocrText.trim().length < 5) {
@@ -168,8 +166,10 @@ ${ocrText}
       setStatus('done')
     } catch (err) {
       const msg = err.message || ''
-      if (msg.includes('timeout') || msg.includes('超时')) {
-        setError('网络加载识别引擎超时，请检查网络后重试，或手动输入')
+      if (msg === 'NO_ZHIPU_KEY') {
+        setError('截图识别需要智谱 API Key，请到「设置」配置（免费），或手动输入文字')
+      } else if (msg.includes('timeout') || msg.includes('超时')) {
+        setError('网络超时，请检查网络后重试，或手动输入')
       } else if (msg.includes('NetworkError') || msg.includes('Failed to fetch')) {
         setError('网络连接失败，请检查网络后重试')
       } else {

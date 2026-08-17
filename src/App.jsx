@@ -78,7 +78,11 @@ export default function App() {
       <Route path="/admin/analytics" element={<AdminAnalytics />} />
       {/* /case-study Beta 案例展示页（用于小红书获客，独立全屏） */}
       <Route path="/case-study" element={<CaseStudy />} />
-      {/* ===== 受保护路由：必须完成 onboarding + 至少有一个项目，否则跳转 Onboarding ===== */}
+      {/* 爆款拆解：核心入口不受 ProtectedGuard 限制，新用户可直接体验 */}
+      <Route element={<Layout />}>
+        <Route path="workbench/competitor-analyzer" element={<CompetitorAnalyzer />} />
+      </Route>
+      {/* ===== 受保护路由：必须完成 onboarding + 至少有一个项目 ===== */}
       <Route element={<ProtectedGuard><Layout /></ProtectedGuard>}>
         <Route path="dashboard" element={<Dashboard />} />
         {/* ===== V3：工作台路由 ===== */}
@@ -90,9 +94,8 @@ export default function App() {
         <Route path="workbench/optimization-director" element={<OptimizationDirector />} />
         <Route path="workbench/assets-center" element={<AssetsCenter />} />
         <Route path="workbench/content-review" element={<ContentReview />} />
-        <Route path="workbench/competitor-analyzer" element={<CompetitorAnalyzer />} />
-          <Route path="workbench/case-library" element={<CaseLibrary />} />
-          <Route path="workbench/performance-review" element={<PerformanceReview />} />
+        <Route path="workbench/case-library" element={<CaseLibrary />} />
+        <Route path="workbench/performance-review" element={<PerformanceReview />} />
         {/* factory/video-director 也是视频导演的别名入口 */}
         <Route path="factory/video-director" element={<VideoDirector />} />
         {/* ===== 原有路由：保持向后兼容 ===== */}
