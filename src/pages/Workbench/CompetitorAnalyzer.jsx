@@ -3,7 +3,6 @@ import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useStore } from '../../store/useStore'
 import { callAI, classifyAIError } from '../../utils/aiClient'
 import { generateContentViaAI, parseAIResponse } from '../Pipeline'
-import AIErrorBanner from '../../components/AIErrorBanner'
 import UpgradePrompt from '../../components/UpgradePrompt'
 import { buildAnalysisPrompt } from './analysisPrompt.mjs'
 import { smartRecognize } from '../../utils/visionOCR'
@@ -29,6 +28,7 @@ import {
   BookOpen,
   ChevronDown,
   Camera,
+  Settings,
 } from 'lucide-react'
 
 // buildAnalysisPrompt 已提取到 ./analysisPrompt.mjs，供本组件与 batch-test.mjs 共用
@@ -89,8 +89,10 @@ export default function CompetitorAnalyzer() {
       } else {
         setTitle(quickInput)
       }
-      // 自动触发分析
-      setTimeout(() => handleAnalyze(quickInput), 100)
+      // 只有配了 API Key 才自动触发分析，否则只填入文本
+      if (localStorage.getItem('contentos_api_key')) {
+        setTimeout(() => handleAnalyze(quickInput), 100)
+      }
     }
   }, [location.state])
 
@@ -258,7 +260,7 @@ export default function CompetitorAnalyzer() {
 
     const apiKey = localStorage.getItem('contentos_api_key')
     if (!apiKey) {
-      setError('需要 DeepSeek API Key 才能开始拆解，请到「设置」配置（新用户有免费额度）')
+      setError('请先配置 DeepSeek API Key（新用户有免费额度），点击上方「去设置」按钮即可')
       return
     }
 
@@ -460,7 +462,23 @@ export default function CompetitorAnalyzer() {
       {/* 内容区 */}
       <div className="flex-1 overflow-y-auto p-6">
         <div className="max-w-5xl mx-auto space-y-6">
-          {!hasApiKey && <AIErrorBanner />}
+          {!hasApiKey && (
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center shrink-0">
+                  <Settings size={20} className="text-amber-600" />
+                </div>
+                <div>
+                  <div className="text-sm font-medium text-gray-900">需要配置 DeepSeek API Key 才能拆解</div>
+                  <div className="text-xs text-gray-500 mt-0.5">新用户有免费额度，约 2 分钟即可完成配置</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 shrink-0">
+                <a href="https://platform.deepseek.com/api_keys" target="_blank" rel="noopener noreferrer" className="text-xs text-brand-600 hover:underline whitespace-nowrap">注册获取 Key →</a>
+                <button onClick={() => navigate('/settings')} className="px-4 py-2 bg-brand-600 text-white rounded-lg text-sm font-medium hover:bg-brand-700 whitespace-nowrap">去设置</button>
+              </div>
+            </div>
+          )}
 
           {/* 输入区 */}
           {!analysisResult && (
@@ -480,7 +498,7 @@ export default function CompetitorAnalyzer() {
                     type="text"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    placeholder="例如：30岁前必须知道的5个赚钱真相"
+                    placeholder="例：为什么劝普通女生一定要存钱？这3个真相没人告诉你"
                     className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent text-sm"
                   />
                 </div>
@@ -563,7 +581,7 @@ export default function CompetitorAnalyzer() {
                   <textarea
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
-                    placeholder="粘贴爆款视频的完整文案或脚本内容..."
+                    placeholder="粘贴小红书/抖音文案，或上传截图自动识别..."
                     rows={6}
                     className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent text-sm resize-none"
                   />
@@ -611,7 +629,7 @@ export default function CompetitorAnalyzer() {
                 <div className="flex gap-3 pt-2">
                   <button
                     onClick={() => handleAnalyze()}
-                    disabled={isAnalyzing || !hasApiKey}
+                    disabled={isAnalyzing}
                     className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed text-sm font-medium"
                   >
                     {isAnalyzing ? (
@@ -653,7 +671,7 @@ export default function CompetitorAnalyzer() {
                     className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors flex items-center gap-1.5"
                   >
                     <RefreshCw className="w-4 h-4" />
-                    拆解新爆款
+                    再拆一条，对比差异
                   </button>
                   <button
                     onClick={handleSave}
@@ -1169,6 +1187,10 @@ export default function CompetitorAnalyzer() {
                   {/* 去创作工厂深度生成 */}
                   <button
                     onClick={async () => {
+                      if (!hasApiKey) {
+                        setError('请先配置 API Key 才能使用创作功能')
+                        return
+                      }
                       if (!saved) handleSave()
                       navigate('/factory/pipeline', {
                         state: {

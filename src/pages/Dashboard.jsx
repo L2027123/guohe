@@ -336,6 +336,36 @@ export default function Dashboard() {
       <div className="flex-1 overflow-y-auto p-6">
         {mode === 'novice' ? (
           <div className="max-w-5xl mx-auto space-y-5">
+            {/* 渐进式拆解引导：0 条→大卡片，1-2 条→小提示，3+条→消失 */}
+            {allPatterns.length === 0 && (
+              <div className="bg-gradient-to-br from-amber-500 to-red-500 rounded-2xl p-6 text-white flex items-center justify-between">
+                <div>
+                  <div className="text-xs font-medium text-white/80 mb-1">第一步</div>
+                  <h2 className="text-xl font-bold">拆解一条爆款，让 AI 学习你的领域</h2>
+                  <p className="text-sm text-white/80 mt-1">粘贴爆款文案或上传截图，30 秒出拆解报告</p>
+                </div>
+                <button
+                  onClick={() => navigate('/workbench/competitor-analyzer')}
+                  className="px-5 py-2.5 bg-white text-red-600 rounded-lg text-sm font-bold hover:bg-white/90 transition-colors whitespace-nowrap shrink-0"
+                >
+                  去拆解 →
+                </button>
+              </div>
+            )}
+            {allPatterns.length > 0 && allPatterns.length < 3 && (
+              <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 flex items-center justify-between">
+                <span className="text-sm text-amber-800">
+                  已拆解 {allPatterns.length} 条，继续积累风格 DNA（建议拆解 3 条以上）
+                </span>
+                <button
+                  onClick={() => navigate('/workbench/competitor-analyzer')}
+                  className="text-sm text-brand-600 font-medium hover:underline whitespace-nowrap"
+                >
+                  继续拆解 →
+                </button>
+              </div>
+            )}
+
             {/* 新用户引导 Hero：确认 AI 是否理解你的账号 */}
             {isNewUser && (
               <div className="bg-gradient-to-br from-brand-600 to-brand-700 rounded-2xl p-8 text-white relative overflow-hidden">

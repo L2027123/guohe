@@ -318,6 +318,10 @@ export default function Landing() {
             </div>
           </div>
 
+          <p className="mt-3 text-center text-xs text-gray-600">
+            👆 这是分析结果示例，在上方输入你自己的内容试试
+          </p>
+
           <div className="mt-12 w-full">
             <button
               onClick={() => setShowMore((v) => !v)}

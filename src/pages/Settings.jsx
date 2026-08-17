@@ -129,12 +129,12 @@ export default function Settings() {
               <div className="flex items-start gap-2">
                 <span>1. 打开</span>
                 <a
-                  href="https://platform.deepseek.com/"
+                  href="https://platform.deepseek.com/api_keys"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-brand-600 hover:text-brand-700 underline inline-flex items-center gap-0.5 font-medium"
                 >
-                  platform.deepseek.com
+                  platform.deepseek.com/api_keys
                   <ExternalLink size={11} />
                 </a>
               </div>
