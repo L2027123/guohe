@@ -83,14 +83,20 @@ export default function Settings() {
     <div className="flex flex-col h-full">
       <header className="px-6 py-4 bg-white border-b border-gray-100 shrink-0">
         <div className="flex items-center gap-3 mb-1">
-          {returnInfo?.from && (
-            <button
-              onClick={() => navigate(returnInfo.from, { state: returnInfo.fromState })}
-              className="p-1.5 -ml-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-gray-900 transition-colors"
-            >
-              <ArrowLeft size={18} />
-            </button>
-          )}
+          <button
+            onClick={() => {
+              if (returnInfo?.from) {
+                navigate(returnInfo.from, { state: returnInfo.fromState })
+              } else if (window.history.length > 1) {
+                navigate(-1)
+              } else {
+                navigate('/dashboard')
+              }
+            }}
+            className="p-1.5 -ml-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-gray-900 transition-colors"
+          >
+            <ArrowLeft size={18} />
+          </button>
           <h1 className="text-xl font-semibold text-gray-900">设置</h1>
         </div>
         <p className="text-sm text-gray-500">
@@ -354,6 +360,23 @@ export default function Settings() {
               </button>
             </div>
           </div>
+
+          {/* 返回按钮 */}
+          <button
+            onClick={() => {
+              if (returnInfo?.from) {
+                navigate(returnInfo.from, { state: returnInfo.fromState })
+              } else if (window.history.length > 1) {
+                navigate(-1)
+              } else {
+                navigate('/dashboard')
+              }
+            }}
+            className="w-full py-3 rounded-xl bg-brand-600 text-white text-sm font-medium hover:bg-brand-700 transition-colors inline-flex items-center justify-center gap-1.5"
+          >
+            {returnInfo?.returnLabel || '返回'}
+            <ArrowLeft size={14} className="rotate-180" />
+          </button>
         </div>
       </div>
     </div>
