@@ -6,6 +6,7 @@ import { generateContentViaAI, parseAIResponse } from '../Pipeline'
 import UpgradePrompt from '../../components/UpgradePrompt'
 import { buildAnalysisPrompt } from './analysisPrompt.mjs'
 import { smartRecognize } from '../../utils/visionOCR'
+import { getApiKey, isUsingTrialKey } from '../../utils/apiKey'
 import {
   Search,
   Sparkles,
@@ -89,10 +90,8 @@ export default function CompetitorAnalyzer() {
       } else {
         setTitle(quickInput)
       }
-      // 只有配了 API Key 才自动触发分析，否则只填入文本
-      if (localStorage.getItem('contentos_api_key')) {
-        setTimeout(() => handleAnalyze(quickInput), 100)
-      }
+      // 试用模式也自动触发分析
+      setTimeout(() => handleAnalyze(quickInput), 100)
     }
   }, [location.state])
 
@@ -115,7 +114,7 @@ export default function CompetitorAnalyzer() {
   const [genError, setGenError] = useState('')
 
   const [copied, setCopied] = useState('')
-  const hasApiKey = Boolean(localStorage.getItem('contentos_api_key'))
+  const usingTrial = isUsingTrialKey()
 
   // ===== CTA 区域状态 =====
   const [showCreateInput, setShowCreateInput] = useState(false)
@@ -258,11 +257,7 @@ export default function CompetitorAnalyzer() {
     setGeneratedVersion(null)
     setShowFullReport(false)
 
-    const apiKey = localStorage.getItem('contentos_api_key')
-    if (!apiKey) {
-      setError('请先配置 DeepSeek API Key（新用户有免费额度），点击上方「去设置」按钮即可')
-      return
-    }
+    const apiKey = getApiKey()
 
     // 自动创建默认项目（新用户从 Landing 进来没有项目时）
     let projectId = currentProjectId
@@ -363,11 +358,7 @@ export default function CompetitorAnalyzer() {
 
   // ===== 生成我的版本（复用 generateContentViaAI）=====
   const handleGenerateMyVersion = async () => {
-    const apiKey = localStorage.getItem('contentos_api_key')
-    if (!apiKey) {
-      setGenError('请先连接 AI 服务')
-      return
-    }
+    const apiKey = getApiKey()
     setIsGenerating(true)
     setGenError('')
     setGeneratedVersion(null)
@@ -462,21 +453,18 @@ export default function CompetitorAnalyzer() {
       {/* 内容区 */}
       <div className="flex-1 overflow-y-auto p-6">
         <div className="max-w-5xl mx-auto space-y-6">
-          {!hasApiKey && (
-            <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 flex items-center justify-between">
+          {usingTrial && (
+            <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center shrink-0">
-                  <Settings size={20} className="text-amber-600" />
+                <div className="w-9 h-9 rounded-lg bg-green-100 flex items-center justify-center shrink-0">
+                  <Sparkles size={18} className="text-green-600" />
                 </div>
                 <div>
-                  <div className="text-sm font-medium text-gray-900">需要配置 DeepSeek API Key 才能拆解</div>
-                  <div className="text-xs text-gray-500 mt-0.5">新用户有免费额度，约 2 分钟即可完成配置</div>
+                  <div className="text-sm font-medium text-gray-900">🎉 试用模式 · 免费体验中</div>
+                  <div className="text-xs text-gray-500 mt-0.5">无需配置 API Key，直接开始拆解。购买后可在「设置」配置自己的 Key</div>
                 </div>
               </div>
-              <div className="flex items-center gap-3 shrink-0">
-                <a href="https://platform.deepseek.com/api_keys" target="_blank" rel="noopener noreferrer" className="text-xs text-brand-600 hover:underline whitespace-nowrap">注册获取 Key →</a>
-                <button onClick={() => navigate('/settings')} className="px-4 py-2 bg-brand-600 text-white rounded-lg text-sm font-medium hover:bg-brand-700 whitespace-nowrap">去设置</button>
-              </div>
+              <button onClick={() => navigate('/settings')} className="text-xs text-green-700 hover:underline whitespace-nowrap shrink-0">配置自己的 Key →</button>
             </div>
           )}
 
