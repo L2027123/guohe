@@ -135,18 +135,27 @@ export default function Landing() {
             <Search size={28} className="text-brand-400" />
             果核
           </h1>
-          <p className="text-sm text-gray-400 mb-8">30秒看透爆款设计逻辑</p>
+          <p className="text-sm text-gray-400 mb-6">30秒看透爆款设计逻辑</p>
 
-          <textarea
-            value={pastedText}
-            onChange={(e) => {
-              setPastedText(e.target.value)
-              setShowPreview(false)
-            }}
-            placeholder="粘贴任意爆款标题+正文，AI自动拆解它的设计机关"
-            rows={6}
-            className="w-full px-4 py-3.5 rounded-xl bg-gray-900/60 border border-gray-700 text-white text-sm placeholder:text-gray-500 focus:outline-none focus:border-brand-500 resize-none leading-relaxed text-left"
-          />
+          {/* 主输入区 - 更醒目 */}
+          <div className="w-full rounded-2xl bg-gradient-to-br from-gray-900 to-gray-800 p-4 border border-gray-700 shadow-2xl shadow-brand-500/5">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-6 h-6 rounded bg-brand-600/20 flex items-center justify-center">
+                <Edit3 size={13} className="text-brand-400" />
+              </div>
+              <span className="text-xs font-medium text-gray-300">粘贴爆款文案或标题，AI 自动拆解</span>
+            </div>
+            <textarea
+              value={pastedText}
+              onChange={(e) => {
+                setPastedText(e.target.value)
+                setShowPreview(false)
+              }}
+              placeholder="例：为什么劝普通女生一定要存钱？这3个真相没人告诉你"
+              rows={4}
+              className="w-full px-4 py-3 rounded-xl bg-gray-950/60 border border-gray-700 text-white text-sm placeholder:text-gray-500 focus:outline-none focus:border-brand-500 resize-none leading-relaxed text-left"
+            />
+          </div>
 
           {/* 识别结果预览卡片 */}
           {showPreview && pastedText && (
@@ -318,9 +327,21 @@ export default function Landing() {
             </div>
           </div>
 
-          <p className="mt-3 text-center text-xs text-gray-600">
-            👆 这是分析结果示例，在上方输入你自己的内容试试
-          </p>
+          {/* 示例下方：快速行动引导 */}
+          <div className="mt-4 w-full rounded-xl bg-brand-600/10 border border-brand-500/20 p-4 flex items-center justify-between">
+            <div className="text-left">
+              <p className="text-sm font-medium text-brand-300">👆 这是分析结果示例</p>
+              <p className="text-xs text-gray-400 mt-0.5">在上方输入框粘贴你的爆款内容，30秒出拆解报告</p>
+            </div>
+            <button
+              onClick={handleAnalyze}
+              disabled={!pastedText.trim()}
+              className="px-4 py-2 bg-brand-600 hover:bg-brand-700 disabled:bg-gray-700 disabled:text-gray-500 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2 whitespace-nowrap shrink-0"
+            >
+              {pastedText.trim() ? '开始拆解' : '先去输入 →'}
+              <ArrowRight size={14} />
+            </button>
+          </div>
 
           <div className="mt-12 w-full">
             <button
