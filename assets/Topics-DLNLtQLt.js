@@ -1,4 +1,4 @@
-import{a as n,u as X,t as D,j as e,c as Y,b as q}from"./index-DgdXw88Y.js";import{b as B,r}from"./react-vendor-DSYpD63Q.js";import{L as H,g as M,X as Q,P as U,Y as Z,S as ee,i as te,_,l as F}from"./lucide-NCvXOZx7.js";import"./zustand-DOacgZDb.js";const G=["全部","家居","穿搭","美妆","干货","美食","旅行","健身"];async function se(a,s,l){const c=`你是一位擅长${a.platform||"小红书"}内容策划的专家。请基于以下账号信息生成 5 个选题。
+import{a as n,u as X,t as D,j as e,c as Y,b as q}from"./index-Dv3bLvK0.js";import{b as B,r}from"./react-vendor-DSYpD63Q.js";import{L as H,g as M,X as Q,P as U,Y as Z,S as ee,i as te,_,l as F}from"./lucide-NCvXOZx7.js";import"./zustand-DOacgZDb.js";const G=["全部","家居","穿搭","美妆","干货","美食","旅行","健身"];async function se(a,s,l){const c=`你是一位擅长${a.platform||"小红书"}内容策划的专家。请基于以下账号信息生成 5 个选题。
 
 【账号信息】
 - 账号名称：${a.name}

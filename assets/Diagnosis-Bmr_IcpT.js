@@ -1,4 +1,4 @@
-import{a as o,j as e,t as _,c as O,b as L}from"./index-DgdXw88Y.js";import{b as V,r as g}from"./react-vendor-DSYpD63Q.js";import{a5 as W,Q as J,L as Y,g as B,k as z,z as D,T as H,O as Q,c as U}from"./lucide-NCvXOZx7.js";import"./zustand-DOacgZDb.js";const q=["小红书","TikTok","YouTube","其他"];async function G(i,t,l){const y=`你是一位资深的社交媒体账号诊断专家。请根据以下账号信息进行诊断。
+import{a as o,j as e,t as _,c as O,b as L}from"./index-Dv3bLvK0.js";import{b as V,r as g}from"./react-vendor-DSYpD63Q.js";import{a5 as W,Q as J,L as Y,g as B,k as z,z as D,T as H,O as Q,c as U}from"./lucide-NCvXOZx7.js";import"./zustand-DOacgZDb.js";const q=["小红书","TikTok","YouTube","其他"];async function G(i,t,l){const y=`你是一位资深的社交媒体账号诊断专家。请根据以下账号信息进行诊断。
 
 【账号信息】
 - 账号名称：${i.accountName}

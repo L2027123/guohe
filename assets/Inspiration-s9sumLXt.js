@@ -1,4 +1,4 @@
-import{a as h,j as e,c as S,b as z}from"./index-DgdXw88Y.js";import{b as C,r as x}from"./react-vendor-DSYpD63Q.js";import{N as j,g as n,L as T,A as f,c as A}from"./lucide-NCvXOZx7.js";import"./zustand-DOacgZDb.js";async function P(l,t){const o=`你是一名爆款内容分析专家。请拆解以下优秀内容的结构规律。
+import{a as h,j as e,c as S,b as z}from"./index-Dv3bLvK0.js";import{b as C,r as x}from"./react-vendor-DSYpD63Q.js";import{N as j,g as n,L as T,A as f,c as A}from"./lucide-NCvXOZx7.js";import"./zustand-DOacgZDb.js";async function P(l,t){const o=`你是一名爆款内容分析专家。请拆解以下优秀内容的结构规律。
 
 【待分析内容】
 ${l}
