@@ -135,117 +135,10 @@ export default function Landing() {
             <Search size={28} className="text-brand-400" />
             果核
           </h1>
-          <p className="text-sm text-gray-400 mb-6">30秒看透爆款设计逻辑</p>
+          <p className="text-sm text-gray-400 mb-10">30秒看透爆款设计逻辑</p>
 
-          {/* 主输入区 - 更醒目 */}
-          <div className="w-full rounded-2xl bg-gradient-to-br from-gray-900 to-gray-800 p-4 border border-gray-700 shadow-2xl shadow-brand-500/5">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-6 h-6 rounded bg-brand-600/20 flex items-center justify-center">
-                <Edit3 size={13} className="text-brand-400" />
-              </div>
-              <span className="text-xs font-medium text-gray-300">粘贴爆款文案或标题，AI 自动拆解</span>
-            </div>
-            <textarea
-              value={pastedText}
-              onChange={(e) => {
-                setPastedText(e.target.value)
-                setShowPreview(false)
-              }}
-              placeholder="例：为什么劝普通女生一定要存钱？这3个真相没人告诉你"
-              rows={4}
-              className="w-full px-4 py-3 rounded-xl bg-gray-950/60 border border-gray-700 text-white text-sm placeholder:text-gray-500 focus:outline-none focus:border-brand-500 resize-none leading-relaxed text-left"
-            />
-          </div>
-
-          {/* 识别结果预览卡片 */}
-          {showPreview && pastedText && (
-            <div className="w-full mt-2 rounded-xl border border-brand-500/30 bg-brand-500/10 p-3 text-left">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <Eye size={14} className="text-brand-400" />
-                  <span className="text-xs font-medium text-brand-300">
-                    截图已识别，请确认或编辑后开始拆解
-                  </span>
-                </div>
-                <button
-                  onClick={() => setShowPreview(false)}
-                  className="text-gray-400 hover:text-white"
-                >
-                  <X size={14} />
-                </button>
-              </div>
-              <textarea
-                value={pastedText}
-                onChange={(e) => setPastedText(e.target.value)}
-                rows={4}
-                className="w-full px-3 py-2 rounded-lg bg-gray-900/80 border border-gray-700 text-gray-200 text-xs resize-none focus:outline-none focus:border-brand-500 font-mono leading-relaxed"
-              />
-              <p className="text-[10px] text-gray-500 mt-1.5">
-                如果识别不准，可以直接在上方编辑修正，再点「开始拆解」
-              </p>
-            </div>
-          )}
-
-          {error && (
-            <p className="mt-2 text-xs text-red-400 self-start">{error}</p>
-          )}
-
-          {ocrLoading && (
-            <div className="mt-2 self-start w-full">
-              <p className={`text-xs ${phaseColor()}`}>{phaseLabel()}</p>
-              <div className="mt-1 w-full h-1 bg-gray-800 rounded-full overflow-hidden">
-                <div
-                  className={`h-full transition-all duration-200 ${phaseBar()}`}
-                  style={{ width: `${Math.max(ocrProgress, 3)}%` }}
-                />
-              </div>
-            </div>
-          )}
-
-          <div className="mt-4 flex items-center gap-3 w-full">
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              disabled={ocrLoading}
-              className="flex-1 px-4 py-3 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-200 text-sm font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Camera size={16} />
-              {ocrLoading ? '识别中...' : '上传截图'}
-            </button>
-            <button
-              onClick={handleAnalyze}
-              disabled={!pastedText.trim() || ocrLoading}
-              className="flex-1 px-4 py-3 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-brand-600/20"
-            >
-              <Search size={16} />
-              开始拆解
-              <ArrowRight size={16} />
-            </button>
-          </div>
-
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={handleScreenshot}
-          />
-
-          <div className="mt-10 w-full flex items-center gap-4">
-            <div className="flex-1 h-px bg-gray-800" />
-            <span className="text-xs text-gray-500 whitespace-nowrap">不知道拆什么？</span>
-            <div className="flex-1 h-px bg-gray-800" />
-          </div>
-
-          <button
-            onClick={handleExample}
-            className="mt-5 inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-gray-900/60 border border-gray-700 hover:border-brand-500/50 hover:bg-gray-800 text-gray-300 hover:text-white text-sm transition-all"
-          >
-            <Flame size={15} className="text-amber-400" />
-            先拆这个示例
-          </button>
-
-          {/* 示例拆解报告 */}
-          <div className="mt-10 w-full text-left">
+          {/* 示例拆解报告 - 放前面，先让用户看到价值 */}
+          <div className="w-full text-left">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-1 h-4 rounded-full bg-brand-500" />
               <span className="text-xs font-medium text-gray-400">拆解完长这样 ↓</span>
@@ -327,19 +220,118 @@ export default function Landing() {
             </div>
           </div>
 
-          {/* 示例下方：快速行动引导 */}
-          <div className="mt-4 w-full rounded-xl bg-brand-600/10 border border-brand-500/20 p-4 flex items-center justify-between">
-            <div className="text-left">
-              <p className="text-sm font-medium text-brand-300">👆 这是分析结果示例</p>
-              <p className="text-xs text-gray-400 mt-0.5">在上方输入框粘贴你的爆款内容，30秒出拆解报告</p>
+          {/* 看完示例，立即输入 */}
+          <div className="mt-8 w-full">
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <div className="w-1 h-4 rounded-full bg-amber-400" />
+              <span className="text-xs font-medium text-gray-300">轮到你了 ↓ 粘贴你的爆款内容</span>
             </div>
+
+            {/* 主输入区 */}
+            <div className="w-full rounded-2xl bg-gradient-to-br from-gray-900 to-gray-800 p-4 border border-gray-700 shadow-2xl shadow-brand-500/5">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-6 h-6 rounded bg-brand-600/20 flex items-center justify-center">
+                  <Edit3 size={13} className="text-brand-400" />
+                </div>
+                <span className="text-xs font-medium text-gray-300">粘贴爆款文案或标题，AI 自动拆解</span>
+              </div>
+              <textarea
+                value={pastedText}
+                onChange={(e) => {
+                  setPastedText(e.target.value)
+                  setShowPreview(false)
+                }}
+                placeholder="例：为什么劝普通女生一定要存钱？这3个真相没人告诉你"
+                rows={4}
+                className="w-full px-4 py-3 rounded-xl bg-gray-950/60 border border-gray-700 text-white text-sm placeholder:text-gray-500 focus:outline-none focus:border-brand-500 resize-none leading-relaxed text-left"
+              />
+            </div>
+
+            {/* 识别结果预览卡片 */}
+            {showPreview && pastedText && (
+              <div className="w-full mt-2 rounded-xl border border-brand-500/30 bg-brand-500/10 p-3 text-left">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <Eye size={14} className="text-brand-400" />
+                    <span className="text-xs font-medium text-brand-300">
+                      截图已识别，请确认或编辑后开始拆解
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => setShowPreview(false)}
+                    className="text-gray-400 hover:text-white"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+                <textarea
+                  value={pastedText}
+                  onChange={(e) => setPastedText(e.target.value)}
+                  rows={4}
+                  className="w-full px-3 py-2 rounded-lg bg-gray-900/80 border border-gray-700 text-gray-200 text-xs resize-none focus:outline-none focus:border-brand-500 font-mono leading-relaxed"
+                />
+                <p className="text-[10px] text-gray-500 mt-1.5">
+                  如果识别不准，可以直接在上方编辑修正，再点「开始拆解」
+                </p>
+              </div>
+            )}
+
+            {error && (
+              <p className="mt-2 text-xs text-red-400 self-start">{error}</p>
+            )}
+
+            {ocrLoading && (
+              <div className="mt-2 self-start w-full">
+                <p className={`text-xs ${phaseColor()}`}>{phaseLabel()}</p>
+                <div className="mt-1 w-full h-1 bg-gray-800 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full transition-all duration-200 ${phaseBar()}`}
+                    style={{ width: `${Math.max(ocrProgress, 3)}%` }}
+                  />
+                </div>
+              </div>
+            )}
+
+            <div className="mt-4 flex items-center gap-3 w-full">
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={ocrLoading}
+                className="flex-1 px-4 py-3 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-200 text-sm font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Camera size={16} />
+                {ocrLoading ? '识别中...' : '上传截图'}
+              </button>
+              <button
+                onClick={handleAnalyze}
+                disabled={!pastedText.trim() || ocrLoading}
+                className="flex-1 px-4 py-3 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-brand-600/20"
+              >
+                <Search size={16} />
+                开始拆解
+                <ArrowRight size={16} />
+              </button>
+            </div>
+
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleScreenshot}
+            />
+
+            <div className="mt-8 w-full flex items-center gap-4">
+              <div className="flex-1 h-px bg-gray-800" />
+              <span className="text-xs text-gray-500 whitespace-nowrap">不知道拆什么？</span>
+              <div className="flex-1 h-px bg-gray-800" />
+            </div>
+
             <button
-              onClick={handleAnalyze}
-              disabled={!pastedText.trim()}
-              className="px-4 py-2 bg-brand-600 hover:bg-brand-700 disabled:bg-gray-700 disabled:text-gray-500 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2 whitespace-nowrap shrink-0"
+              onClick={handleExample}
+              className="mt-5 inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-gray-900/60 border border-gray-700 hover:border-brand-500/50 hover:bg-gray-800 text-gray-300 hover:text-white text-sm transition-all"
             >
-              {pastedText.trim() ? '开始拆解' : '先去输入 →'}
-              <ArrowRight size={14} />
+              <Flame size={15} className="text-amber-400" />
+              先拆这个示例
             </button>
           </div>
 
