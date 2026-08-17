@@ -18,6 +18,10 @@ import {
   Eye,
   Edit3,
   X,
+  Lightbulb,
+  Target,
+  Zap,
+  ChevronRight,
 } from 'lucide-react'
 
 const MORE_LINKS = [
@@ -230,6 +234,89 @@ export default function Landing() {
             <Flame size={15} className="text-amber-400" />
             先拆这个示例
           </button>
+
+          {/* 示例拆解报告 */}
+          <div className="mt-10 w-full text-left">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-1 h-4 rounded-full bg-brand-500" />
+              <span className="text-xs font-medium text-gray-400">拆解完长这样 ↓</span>
+            </div>
+
+            <div className="rounded-2xl bg-gray-900/60 border border-gray-800 overflow-hidden">
+              {/* 案例标题 */}
+              <div className="px-5 py-4 border-b border-gray-800/50">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-400 font-medium">小红书爆款</span>
+                  <span className="text-[10px] text-gray-600">12.5w 赞 · 3.2w 收藏</span>
+                </div>
+                <h3 className="text-sm font-semibold text-gray-200">为什么劝普通女生一定要存钱？这3个真相没人告诉你</h3>
+              </div>
+
+              {/* 拆解结果 */}
+              <div className="px-5 py-4 space-y-4">
+                {/* 一句话总结 */}
+                <div>
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <Lightbulb size={13} className="text-brand-400" />
+                    <span className="text-xs font-medium text-brand-300">一句话总结</span>
+                  </div>
+                  <p className="text-xs text-gray-300 leading-relaxed pl-5">
+                    用「三个真相」包装常识，把「存钱」从理财话题偷换成「人生选择权」话题，制造认知差
+                  </p>
+                </div>
+
+                {/* 操作公式 */}
+                <div>
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <Zap size={13} className="text-emerald-400" />
+                    <span className="text-xs font-medium text-emerald-300">操作公式</span>
+                  </div>
+                  <div className="pl-5 flex flex-wrap items-center gap-1.5 text-xs">
+                    <span className="px-2 py-0.5 rounded bg-gray-800 text-gray-300">反直觉结论</span>
+                    <ChevronRight size={10} className="text-gray-600" />
+                    <span className="px-2 py-0.5 rounded bg-gray-800 text-gray-300">拆解3个真相</span>
+                    <ChevronRight size={10} className="text-gray-600" />
+                    <span className="px-2 py-0.5 rounded bg-gray-800 text-gray-300">故事+金句</span>
+                    <ChevronRight size={10} className="text-gray-600" />
+                    <span className="px-2 py-0.5 rounded bg-gray-800 text-gray-300">情绪号召</span>
+                  </div>
+                </div>
+
+                {/* 关键机关 */}
+                <div>
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <Target size={13} className="text-rose-400" />
+                    <span className="text-xs font-medium text-rose-300">关键机关</span>
+                  </div>
+                  <div className="pl-5 space-y-1.5">
+                    <div className="flex items-start gap-2 text-xs text-gray-400">
+                      <span className="text-brand-500 font-mono mt-0.5">01</span>
+                      <span>标题用「为什么劝…一定要…」制造紧迫感，触发好奇</span>
+                    </div>
+                    <div className="flex items-start gap-2 text-xs text-gray-400">
+                      <span className="text-brand-500 font-mono mt-0.5">02</span>
+                      <span>3个真相 = 结构化输出，降低阅读门槛，提升收藏率</span>
+                    </div>
+                    <div className="flex items-start gap-2 text-xs text-gray-400">
+                      <span className="text-brand-500 font-mono mt-0.5">03</span>
+                      <span>反复强调「普通女生」建立身份认同，拉近距离</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* CTA */}
+              <div className="px-5 py-3 bg-gray-900/80 border-t border-gray-800/50">
+                <button
+                  onClick={handleExample}
+                  className="w-full py-2.5 rounded-lg bg-brand-600/20 border border-brand-500/30 hover:bg-brand-600/30 text-brand-300 text-xs font-medium transition-colors flex items-center justify-center gap-1.5"
+                >
+                  我也要拆一个
+                  <ArrowRight size={12} />
+                </button>
+              </div>
+            </div>
+          </div>
 
           <div className="mt-12 w-full">
             <button
