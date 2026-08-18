@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { useStore } from '../../store/useStore'
 import { callAI, classifyAIError } from '../../utils/aiClient'
 import { trackModuleClick } from '../../utils/tracker'
+import { getApiKey, isUsingTrialKey } from '../../utils/apiKey'
 import {
   ArrowLeft,
   Upload,
@@ -18,6 +19,7 @@ import {
   Type,
   ArrowRight,
   FileText,
+  Sparkles,
 } from 'lucide-react'
 
 export default function OptimizationDirector() {
@@ -60,8 +62,10 @@ export default function OptimizationDirector() {
   const [result, setResult] = useState(null)
   const [error, setError] = useState('')
 
-  const getApiKey = () => {
-    const key = localStorage.getItem('contentos_api_key')
+  const usingTrial = isUsingTrialKey()
+
+  const getApiKeySafe = () => {
+    const key = getApiKey()
     if (!key) {
       setError('请先在设置页面配置 DeepSeek API Key')
       return null
@@ -425,7 +429,7 @@ ${styleInfo}
         return
       }
     }
-    const apiKey = getApiKey()
+    const apiKey = getApiKeySafe()
     if (!apiKey) return
 
     setAnalyzing(true)
@@ -507,7 +511,7 @@ ${styleInfo}
       {/* 顶部栏 */}
       <header className="flex items-center gap-3 px-6 py-4 bg-white border-b border-gray-100 shrink-0">
         <button
-          onClick={() => navigate('/workbench/director')}
+          onClick={() => navigate('/')}
           className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500"
         >
           <ArrowLeft size={18} />
@@ -521,6 +525,21 @@ ${styleInfo}
 
       <div className="flex-1 overflow-y-auto p-6">
         <div className="max-w-3xl mx-auto space-y-6">
+          {/* 试用模式提示 */}
+          {usingTrial && (
+            <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-green-100 flex items-center justify-center shrink-0">
+                  <Sparkles size={18} className="text-green-600" />
+                </div>
+                <div>
+                  <div className="text-sm font-medium text-gray-900">🎉 试用模式 · 免费体验中</div>
+                  <div className="text-xs text-gray-500 mt-0.5">无需配置 API Key，直接开始分析。购买后可在「设置」配置自己的 Key</div>
+                </div>
+              </div>
+              <button onClick={() => navigate('/settings')} className="text-xs text-green-700 hover:underline whitespace-nowrap shrink-0">配置自己的 Key →</button>
+            </div>
+          )}
           {/* 副标题 */}
           <div className="bg-gradient-to-br from-gray-900 via-purple-900 to-brand-900 rounded-2xl p-6 text-white relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-brand-500/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />

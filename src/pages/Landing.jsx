@@ -135,7 +135,7 @@ export default function Landing() {
             <Search size={28} className="text-brand-400" />
             果核
           </h1>
-          <p className="text-sm text-gray-400 mb-10">30秒看透爆款设计逻辑</p>
+          <p className="text-sm text-gray-400 mb-10">粘贴你的内容，AI 帮你改到能爆</p>
 
           {/* 示例拆解报告 - 放前面，先让用户看到价值 */}
           <div className="w-full text-left">
@@ -224,7 +224,7 @@ export default function Landing() {
           <div className="mt-8 w-full">
             <div className="flex items-center justify-center gap-2 mb-4">
               <div className="w-1 h-4 rounded-full bg-amber-400" />
-              <span className="text-xs font-medium text-gray-300">轮到你了 ↓ 粘贴你的爆款内容</span>
+              <span className="text-xs font-medium text-gray-300">轮到你了 ↓ 粘贴你的文案，或别人的爆款</span>
             </div>
 
             {/* 主输入区 */}
@@ -233,7 +233,7 @@ export default function Landing() {
                 <div className="w-6 h-6 rounded bg-brand-600/20 flex items-center justify-center">
                   <Edit3 size={13} className="text-brand-400" />
                 </div>
-                <span className="text-xs font-medium text-gray-300">粘贴爆款文案或标题，AI 自动拆解</span>
+                <span className="text-xs font-medium text-gray-300">粘贴文案，AI 自动拆解或爆改</span>
               </div>
               <textarea
                 value={pastedText}
@@ -241,7 +241,7 @@ export default function Landing() {
                   setPastedText(e.target.value)
                   setShowPreview(false)
                 }}
-                placeholder="例：为什么劝普通女生一定要存钱？这3个真相没人告诉你"
+                placeholder="粘贴你的草稿，或别人的爆款文案...（支持上传截图自动识别）"
                 rows={4}
                 className="w-full px-4 py-3 rounded-xl bg-gray-950/60 border border-gray-700 text-white text-sm placeholder:text-gray-500 focus:outline-none focus:border-brand-500 resize-none leading-relaxed text-left"
               />
@@ -307,7 +307,7 @@ export default function Landing() {
                 className="flex-1 px-4 py-3 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-brand-600/20"
               >
                 <Search size={16} />
-                开始拆解
+                开始分析
                 <ArrowRight size={16} />
               </button>
             </div>
