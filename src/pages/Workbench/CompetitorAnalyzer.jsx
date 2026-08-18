@@ -309,11 +309,36 @@ export default function CompetitorAnalyzer() {
   const parseAnalysisResult = (text) => {
     try {
       let cleaned = text.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim()
-      const jsonMatch = cleaned.match(/\{[\s\S]*\}/)
+      // 尝试直接解析
+      try {
+        return JSON.parse(cleaned)
+      } catch {}
+      // 尝试匹配第一个 JSON 对象（非贪婪）
+      const jsonMatch = cleaned.match(/\{[\s\S]*?\}/)
       if (jsonMatch) {
         const jsonStr = jsonMatch[0].replace(/,(\s*[}\]])/g, '$1')
-        return JSON.parse(jsonStr)
+        try {
+          return JSON.parse(jsonStr)
+        } catch {}
       }
+      // 尝试匹配完整花括号块（平衡花括号）
+      let depth = 0, start = -1
+      for (let i = 0; i < cleaned.length; i++) {
+        if (cleaned[i] === '{') {
+          if (depth === 0) start = i
+          depth++
+        } else if (cleaned[i] === '}') {
+          depth--
+          if (depth === 0 && start !== -1) {
+            const jsonStr = cleaned.slice(start, i + 1).replace(/,(\s*[}\]])/g, '$1')
+            try {
+              return JSON.parse(jsonStr)
+            } catch {}
+            start = -1
+          }
+        }
+      }
+      console.error('[parseAnalysisResult] Failed to parse:', cleaned.slice(0, 200))
       return null
     } catch {
       return null
