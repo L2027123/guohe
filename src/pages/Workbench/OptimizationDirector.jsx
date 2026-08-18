@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom'
 import { useStore } from '../../store/useStore'
 import { callAI, classifyAIError } from '../../utils/aiClient'
 import { trackModuleClick } from '../../utils/tracker'
@@ -25,6 +25,7 @@ import {
 export default function OptimizationDirector() {
   const navigate = useNavigate()
   const location = useLocation()
+  const [searchParams] = useSearchParams()
   const currentProjectId = useStore((s) => s.currentProjectId)
   const projects = useStore((s) => s.projects)
   const allStyleDNA = useStore((s) => s.styleDNA)
@@ -56,6 +57,15 @@ export default function OptimizationDirector() {
       })
     }
   }, [location.state])
+
+  // 初始化：检测 URL ?text= 参数自动进入 text 模式并填充
+  useEffect(() => {
+    const textParam = searchParams.get('text')
+    if (textParam) {
+      setInputMode('text')
+      setPastedText(textParam)
+    }
+  }, [searchParams])
 
   const [material, setMaterial] = useState(null) // { videoUrl, fileName, duration } 用于 video 模式
   const [pastedText, setPastedText] = useState('') // 粘贴文案（text 模式）

@@ -35,6 +35,7 @@ const MORE_LINKS = [
 export default function Landing() {
   const navigate = useNavigate()
   const [pastedText, setPastedText] = useState('')
+  const [analyzeMode, setAnalyzeMode] = useState('analyze') // 'analyze' 拆解爆款 | 'optimize' 爆改我的内容
   const [showMore, setShowMore] = useState(false)
   const [ocrLoading, setOcrLoading] = useState(false)
   const [ocrPhase, setOcrPhase] = useState(null)
@@ -94,8 +95,14 @@ export default function Landing() {
 
   const handleAnalyze = () => {
     if (!pastedText.trim()) return
-    trackEvent('click_start_analyze')
-    navigate('/workbench/competitor-analyzer', { state: { quickInput: pastedText.trim() } })
+    trackEvent('click_start_analyze', { mode: analyzeMode })
+    if (analyzeMode === 'optimize') {
+      // 爆改模式：跳转到 OptimizationDirector，通过 query 参数传递文案
+      navigate(`/workbench/optimization-director?text=${encodeURIComponent(pastedText.trim())}`)
+    } else {
+      // 拆解模式：跳转到 CompetitorAnalyzer
+      navigate('/workbench/competitor-analyzer', { state: { quickInput: pastedText.trim() } })
+    }
   }
 
   const handleExample = () => {
@@ -224,16 +231,48 @@ export default function Landing() {
           <div className="mt-8 w-full">
             <div className="flex items-center justify-center gap-2 mb-4">
               <div className="w-1 h-4 rounded-full bg-amber-400" />
-              <span className="text-xs font-medium text-gray-300">轮到你了 ↓ 粘贴别人的爆款内容</span>
+              <span className="text-xs font-medium text-gray-300">轮到你了 ↓ 粘贴内容，选个模式开始</span>
+            </div>
+
+            {/* 模式切换 Tab */}
+            <div className="flex gap-2 mb-3 max-w-md mx-auto">
+              <button
+                onClick={() => setAnalyzeMode('analyze')}
+                className={`flex-1 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                  analyzeMode === 'analyze'
+                    ? 'bg-brand-600 text-white shadow-lg shadow-brand-600/30'
+                    : 'bg-gray-800 text-gray-400 hover:text-gray-200 border border-gray-700'
+                }`}
+              >
+                <span className="inline-flex items-center gap-1.5">
+                  <Search size={13} /> 拆解爆款
+                </span>
+              </button>
+              <button
+                onClick={() => setAnalyzeMode('optimize')}
+                className={`flex-1 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                  analyzeMode === 'optimize'
+                    ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/30'
+                    : 'bg-gray-800 text-gray-400 hover:text-gray-200 border border-gray-700'
+                }`}
+              >
+                <span className="inline-flex items-center gap-1.5">
+                  <Edit3 size={13} /> 爆改我的内容
+                </span>
+              </button>
             </div>
 
             {/* 主输入区 */}
             <div className="w-full rounded-2xl bg-gradient-to-br from-gray-900 to-gray-800 p-4 border border-gray-700 shadow-2xl shadow-brand-500/5">
               <div className="flex items-center gap-2 mb-3">
-                <div className="w-6 h-6 rounded bg-brand-600/20 flex items-center justify-center">
-                  <Edit3 size={13} className="text-brand-400" />
+                <div className={`w-6 h-6 rounded flex items-center justify-center ${analyzeMode === 'optimize' ? 'bg-emerald-600/20' : 'bg-brand-600/20'}`}>
+                  {analyzeMode === 'optimize' ? <Edit3 size={13} className="text-emerald-400" /> : <Search size={13} className="text-brand-400" />}
                 </div>
-                <span className="text-xs font-medium text-gray-300">粘贴爆款文案或标题，AI 拆解 + 生成</span>
+                <span className="text-xs font-medium text-gray-300">
+                  {analyzeMode === 'optimize'
+                    ? '粘贴你的文案草稿，AI 爆改优化'
+                    : '粘贴爆款文案或标题，AI 拆解 + 生成'}
+                </span>
               </div>
               <textarea
                 value={pastedText}
@@ -241,9 +280,11 @@ export default function Landing() {
                   setPastedText(e.target.value)
                   setShowPreview(false)
                 }}
-                placeholder="粘贴爆款内容（文案 / 标题 / 脚本）...（支持上传截图自动识别）"
+                placeholder={analyzeMode === 'optimize'
+                  ? '粘贴你的文案草稿或已发布内容...（越完整爆改越精准）'
+                  : '粘贴爆款内容（文案 / 标题 / 脚本）...（支持上传截图自动识别）'}
                 rows={4}
-                className="w-full px-4 py-3 rounded-xl bg-gray-950/60 border border-gray-700 text-white text-sm placeholder:text-gray-500 focus:outline-none focus:border-brand-500 resize-none leading-relaxed text-left"
+                className={`w-full px-4 py-3 rounded-xl bg-gray-950/60 border border-gray-700 text-white text-sm placeholder:text-gray-500 focus:outline-none resize-none leading-relaxed text-left ${analyzeMode === 'optimize' ? 'focus:border-emerald-500' : 'focus:border-brand-500'}`}
               />
             </div>
 
@@ -304,10 +345,14 @@ export default function Landing() {
               <button
                 onClick={handleAnalyze}
                 disabled={!pastedText.trim() || ocrLoading}
-                className="flex-1 px-4 py-3 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-brand-600/20"
+                className={`flex-1 px-4 py-3 rounded-xl text-white text-sm font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg ${
+                  analyzeMode === 'optimize'
+                    ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/20'
+                    : 'bg-brand-600 hover:bg-brand-700 shadow-brand-600/20'
+                }`}
               >
-                <Search size={16} />
-                开始分析
+                {analyzeMode === 'optimize' ? <Edit3 size={16} /> : <Search size={16} />}
+                {analyzeMode === 'optimize' ? '开始爆改' : '开始拆解'}
                 <ArrowRight size={16} />
               </button>
             </div>
