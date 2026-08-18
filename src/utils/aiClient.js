@@ -52,7 +52,7 @@ export function classifyAIError(err) {
 export async function callAI(apiKey, prompt, options = {}) {
   const {
     temperature = 0.7,
-    max_tokens = 1500,
+    max_tokens = 3000,
     model = 'deepseek-chat',
     timeout = 30000,
   } = options

@@ -338,6 +338,34 @@ export default function CompetitorAnalyzer() {
           }
         }
       }
+      // 尝试修复被截断的 JSON（补全缺失的括号和引号）
+      if (start !== -1) {
+        let truncated = cleaned.slice(start)
+        // 移除最后一个不完整的 key:value
+        truncated = truncated.replace(/,\s*"[^"]*":?\s*"?[^"]*$/, '')
+        // 移除最后一个不完整的 key:
+        truncated = truncated.replace(/,\s*"[^"]*":?\s*$/, '')
+        // 补全括号
+        let openBraces = 0, openBrackets = 0, inString = false, escape = false
+        for (const ch of truncated) {
+          if (escape) { escape = false; continue }
+          if (ch === '\\') { escape = true; continue }
+          if (ch === '"') { inString = !inString; continue }
+          if (inString) continue
+          if (ch === '{') openBraces++
+          else if (ch === '}') openBraces--
+          else if (ch === '[') openBrackets++
+          else if (ch === ']') openBrackets--
+        }
+        // 如果在字符串里，先闭合字符串
+        if (inString) truncated += '"'
+        truncated += ']'.repeat(Math.max(0, openBrackets)) + '}'.repeat(Math.max(0, openBraces))
+        try {
+          return JSON.parse(truncated)
+        } catch (e) {
+          console.error('[parseAnalysisResult] Failed to parse (after repair):', e.message)
+        }
+      }
       console.error('[parseAnalysisResult] Failed to parse:', cleaned.slice(0, 200))
       return null
     } catch {
