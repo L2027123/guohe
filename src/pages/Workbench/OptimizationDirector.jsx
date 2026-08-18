@@ -36,7 +36,7 @@ export default function OptimizationDirector() {
   const currentDNA = allStyleDNA[currentProjectId]
 
   // ===== 双输入模式：video（上传视频） / script（来自创作导演的方案） =====
-  const [inputMode, setInputMode] = useState('video') // 'video' | 'script'
+  const [inputMode, setInputMode] = useState('text') // 'text' | 'script' | 'video'
 
   // script 模式方案数据（来自 location.state）
   const [scriptPlan, setScriptPlan] = useState(null) // { hook, script, structure, title, cover, shootingPlan, projectId }
@@ -58,6 +58,7 @@ export default function OptimizationDirector() {
   }, [location.state])
 
   const [material, setMaterial] = useState(null) // { videoUrl, fileName, duration } 用于 video 模式
+  const [pastedText, setPastedText] = useState('') // 粘贴文案（text 模式）
   const [analyzing, setAnalyzing] = useState(false)
   const [result, setResult] = useState(null)
   const [error, setError] = useState('')
@@ -230,6 +231,51 @@ ${performanceDataText}
 - 严禁出现视频画面、镜头、声音、剪辑等违规用语
 - 如果有真实发布数据：复盘时必须结合数据判断，哪些设计导致了当前数据表现，哪些问题影响了关键指标，下一版应优先优化影响数据最大的环节
 - 如果没有真实发布数据：基于内容结构和账号定位做通用分析
+`
+    }
+
+    // ===== text 模式：粘贴文案直接爆改 =====
+    if (inputMode === 'text' && pastedText.trim()) {
+      return `你是【AI 爆改助手】。用户会粘贴一段自己写的文案（草稿/已发布内容），你帮他分析问题并给出优化版。
+
+## 账号信息
+${accountInfo}
+
+## 风格信息
+${styleInfo}
+
+## 输入模式：粘贴文案爆改
+用户粘贴的原始文案：
+${pastedText}
+
+## 输出要求
+直接输出严格 JSON，不要任何解释、markdown 或代码块标记。JSON 结构如下（所有字段必须存在）：
+
+{
+  "score": {
+    "hook": 0-100,
+    "structure": 0-100,
+    "persuasiveness": 0-100,
+    "total": 0-100
+  },
+  "assessmentBasis": "基于文案结构、钩子设计、情绪曲线、账号定位匹配度进行文字层面评估",
+  "problems": ["问题1（具体，如'开头30字没有钩子，用户会划走'）", "问题2"],
+  "strengths": ["优点1", "优点2"],
+  "optimizedVersion": {
+    "title": "优化后的标题（带emoji，不超过20字）",
+    "hook": "优化后的开头第一句话（制造悬念或共鸣）",
+    "body": "优化后的正文（可直接替换使用）",
+    "cta": "优化后的结尾行动号召"
+  },
+  "editingAdvice": ["改写建议1（具体到哪句怎么改）", "改写建议2"],
+  "nextVersionPlan": ["下一版方向1", "下一版方向2", "下一版方向3"]
+}
+
+强制：
+- problems/strengths/editingAdvice 至少各 2 条
+- optimizedVersion 的 4 个字段必须完整可直接用
+- body 至少要和原文长度相当或更丰富
+- optimizedVersion 可以直接复制粘贴发布，不需要二次加工
 `
     }
 
@@ -417,10 +463,15 @@ ${styleInfo}
   }
 
   const handleAnalyze = async () => {
-    // script 模式：要求有 scriptPlan；video 模式：要求有 material
+    // script 模式：要求有 scriptPlan；video 模式：要求有 material；text 模式：要求有 pastedText
     if (inputMode === 'script') {
       if (!scriptPlan) {
         setError('没有接收到方案数据，请从创作导演重新点击「让 AI 复盘这个方案」')
+        return
+      }
+    } else if (inputMode === 'text') {
+      if (!pastedText.trim()) {
+        setError('请先粘贴你的文案内容')
         return
       }
     } else {
@@ -578,6 +629,19 @@ ${styleInfo}
           <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
             <div className="flex border-b border-gray-100">
               <button
+                onClick={() => setInputMode('text')}
+                className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
+                  inputMode === 'text'
+                    ? 'text-brand-700 bg-brand-50/60 border-b-2 border-brand-500'
+                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                <span className="inline-flex items-center gap-1.5">
+                  <Type size={14} /> 粘贴文案爆改
+                </span>
+                {inputMode !== 'script' && inputMode !== 'video' && inputMode !== 'text' && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-brand-100 text-brand-700 ml-1">推荐</span>}
+              </button>
+              <button
                 onClick={() => setInputMode('script')}
                 className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
                   inputMode === 'script'
@@ -607,18 +671,70 @@ ${styleInfo}
             <div className="p-5 space-y-4">
               {/* 免责声明（根据模式） */}
               <div className={`rounded-xl p-3 border ${
-                inputMode === 'script'
+                inputMode === 'text'
+                  ? 'bg-emerald-50 border-emerald-100'
+                  : inputMode === 'script'
                   ? 'bg-blue-50 border-blue-100'
                   : 'bg-amber-50 border-amber-100'
               }`}>
                 <div className={`text-xs leading-relaxed ${
-                  inputMode === 'script' ? 'text-blue-700' : 'text-amber-700'
+                  inputMode === 'text' ? 'text-emerald-700'
+                  : inputMode === 'script' ? 'text-blue-700' : 'text-amber-700'
                 }`}>
-                  {inputMode === 'script'
+                  {inputMode === 'text'
+                    ? 'ℹ️ 当前为粘贴文案爆改模式：直接粘贴你的文案草稿或已发布内容，AI 分析问题并给你优化版。'
+                    : inputMode === 'script'
                     ? 'ℹ️ 当前为方案复盘模式：基于脚本和创作方案文本优化，不涉及视频画面/音频/剪辑分析。'
                     : '⚠️ 当前版本不读取视频画面、字幕或语音内容，分析仅基于视频元信息和账号定位，仅供优化参考。'}
                 </div>
               </div>
+
+              {/* ===== text 模式：粘贴文案爆改 ===== */}
+              {inputMode === 'text' && (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Type size={18} className="text-emerald-600" />
+                    <h3 className="font-semibold text-gray-900">粘贴你的文案，AI 爆改</h3>
+                  </div>
+
+                  <div className="space-y-2">
+                    <textarea
+                      value={pastedText}
+                      onChange={(e) => setPastedText(e.target.value)}
+                      placeholder="粘贴你的文案草稿或已发布的内容，越完整越好...
+比如：
+姐妹们！这条显瘦穿搭绝了！梨形身材必入！
+我穿了之后腰细了10斤，腿也变长了！姐妹们冲！"
+                      rows={8}
+                      className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-sm placeholder:text-gray-400 focus:outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100 resize-none leading-relaxed"
+                    />
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-gray-400">当前：{pastedText.length} 字</span>
+                      {pastedText.length > 0 && (
+                        <button onClick={() => setPastedText('')} className="text-xs text-gray-400 hover:text-red-500">清空</button>
+                      )}
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={handleAnalyze}
+                    disabled={analyzing || !pastedText.trim()}
+                    className="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-medium text-sm flex items-center justify-center gap-2 hover:from-emerald-600 hover:to-teal-600 transition-all disabled:opacity-50 shadow-sm"
+                  >
+                    {analyzing ? (
+                      <>
+                        <Loader2 size={16} className="animate-spin" />
+                        AI 爆改中...
+                      </>
+                    ) : (
+                      <>
+                        <Wand2 size={16} />
+                        开始爆改，生成优化版
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
 
               {/* ===== script 模式：方案摘要展示 ===== */}
               {inputMode === 'script' && (

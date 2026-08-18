@@ -135,7 +135,7 @@ export default function Landing() {
             <Search size={28} className="text-brand-400" />
             果核
           </h1>
-          <p className="text-sm text-gray-400 mb-10">粘贴你的内容，AI 帮你改到能爆</p>
+          <p className="text-sm text-gray-400 mb-10">粘贴爆款，AI 帮你拆解 + 生成脚本</p>
 
           {/* 示例拆解报告 - 放前面，先让用户看到价值 */}
           <div className="w-full text-left">
@@ -224,7 +224,7 @@ export default function Landing() {
           <div className="mt-8 w-full">
             <div className="flex items-center justify-center gap-2 mb-4">
               <div className="w-1 h-4 rounded-full bg-amber-400" />
-              <span className="text-xs font-medium text-gray-300">轮到你了 ↓ 粘贴你的文案，或别人的爆款</span>
+              <span className="text-xs font-medium text-gray-300">轮到你了 ↓ 粘贴别人的爆款内容</span>
             </div>
 
             {/* 主输入区 */}
@@ -233,7 +233,7 @@ export default function Landing() {
                 <div className="w-6 h-6 rounded bg-brand-600/20 flex items-center justify-center">
                   <Edit3 size={13} className="text-brand-400" />
                 </div>
-                <span className="text-xs font-medium text-gray-300">粘贴文案，AI 自动拆解或爆改</span>
+                <span className="text-xs font-medium text-gray-300">粘贴爆款文案或标题，AI 拆解 + 生成</span>
               </div>
               <textarea
                 value={pastedText}
@@ -241,7 +241,7 @@ export default function Landing() {
                   setPastedText(e.target.value)
                   setShowPreview(false)
                 }}
-                placeholder="粘贴你的草稿，或别人的爆款文案...（支持上传截图自动识别）"
+                placeholder="粘贴爆款内容（文案 / 标题 / 脚本）...（支持上传截图自动识别）"
                 rows={4}
                 className="w-full px-4 py-3 rounded-xl bg-gray-950/60 border border-gray-700 text-white text-sm placeholder:text-gray-500 focus:outline-none focus:border-brand-500 resize-none leading-relaxed text-left"
               />
