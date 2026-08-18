@@ -83,6 +83,7 @@ export default function App() {
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="workbench/competitor-analyzer" element={<CompetitorAnalyzer />} />
         <Route path="workbench/optimization-director" element={<OptimizationDirector />} />
+        <Route path="factory/pipeline" element={<Pipeline />} />
       </Route>
       {/* ===== 受保护路由：必须完成 onboarding + 至少有一个项目 ===== */}
       <Route element={<ProtectedGuard><Layout /></ProtectedGuard>}>
@@ -104,7 +105,6 @@ export default function App() {
         <Route path="intelligence/trends" element={<Trends />} />
         <Route path="factory/style-dna" element={<StyleDNA />} />
         <Route path="factory/topics" element={<Topics />} />
-        <Route path="factory/pipeline" element={<Pipeline />} />
         <Route path="factory/assets" element={<Assets />} />
         <Route path="data-center/content-data" element={<ContentData />} />
         <Route path="data-center/diagnosis" element={<Diagnosis />} />
