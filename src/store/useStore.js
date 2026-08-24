@@ -220,6 +220,26 @@ export const useStore = create(
         })
       },
 
+      syncFromLicense: (license) => {
+        if (!license) return
+        const tier = license.tier === 'lifetime' ? 'lifetime' : 'pro'
+        set({
+          plan: {
+            tier,
+            status: 'active',
+            startedAt: license.startedAt || Date.now(),
+            expiresAt: license.expiresAt || null,
+          },
+          credits: {
+            aiGenerate: Infinity,
+            aiDiagnosis: Infinity,
+            performanceRecords: Infinity,
+            projects: 10,
+            used: { aiGenerate: 0, aiDiagnosis: 0 },
+          },
+        })
+      },
+
       consumeCredit: (type) => {
         const credits = get().credits
         if (credits[type] === Infinity) return true

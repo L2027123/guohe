@@ -14,6 +14,8 @@ import {
   Wand2,
 } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
+import PricingModal from './PricingModal'
+import { getStoredLicense } from '../utils/license'
 import { useStore } from '../store/useStore'
 
 // 简化的两级导航
@@ -229,6 +231,7 @@ function ProjectSwitcher() {
 
 export default function Sidebar({ mobileOpen = false, onClose }) {
   const [moreOpen, setMoreOpen] = useState(false)
+  const [showPricing, setShowPricing] = useState(false)
   return (
     <>
       {/* 移动端遮罩 */}
@@ -295,15 +298,19 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
             <div className="w-7 h-7 rounded-full bg-brand-600/20 text-brand-400 flex items-center justify-center text-xs font-bold border border-brand-600/30">
               U
             </div>
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 cursor-pointer" onClick={() => setShowPricing(true)}>
               <div className="text-sm font-medium text-white truncate">User</div>
-              <div className="text-[11px] text-gray-500">Pro 计划</div>
+              <div className="text-[11px] text-gray-500">
+                {getStoredLicense() ? `${getStoredLicense().tier === 'lifetime' ? '终身版' : 'Pro'} 已激活` : '免费版 · 点击升级'}
+              </div>
             </div>
-            <button className="p-1.5 rounded-md hover:bg-gray-800 text-gray-400">
+            <button className="p-1.5 rounded-md hover:bg-gray-800 text-gray-400" onClick={() => setShowPricing(true)}>
               <SlidersHorizontal size={14} />
             </button>
           </div>
         </div>
+
+        <PricingModal isOpen={showPricing} onClose={() => setShowPricing(false)} />
       </aside>
     </>
   )

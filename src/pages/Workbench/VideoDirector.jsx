@@ -35,7 +35,10 @@ import {
   Camera,
   Clock,
   MapPin,
+  Download,
+  ChevronDown,
 } from 'lucide-react'
+import { exportStoryboardCSV, exportScriptMarkdown, exportScriptTXT } from '../../utils/exportScript'
 
 // ===== 合规检查规则 =====
 const COMPLIANCE_RULES = [
@@ -258,7 +261,25 @@ ${topicBrief ? `
       "environment": "场景选择理由（如：卧室拍摄，因为话题是睡眠）",
       "materialPreparation": "拍摄前需要准备的物品"
     },
-    "shootingNotes": ["拍摄场景建议，不含表演指导"]
+    "shootingNotes": ["拍摄场景建议，不含表演指导"],
+    "storyboard": [
+      {
+        "shot": 1,
+        "duration": "0-3s",
+        "scene": "画面描述（具体到景别、人物动作、背景）",
+        "dialogue": "这一段的口播台词（逐字）",
+        "cameraMovement": "运镜方式（固定/推近/拉远/平移/手持）",
+        "onscreenText": "屏幕上出现的字幕或贴纸文案",
+        "bRoll": "B-roll 画面建议（展示什么素材/空镜）"
+      }
+    ],
+    "bgmRecommendation": {
+      "style": "BGM 风格（如：轻快钢琴/治愈吉他/悬疑电子/励志管弦）",
+      "moodMatch": "为什么这个风格匹配内容情绪",
+      "tempoBpm": "建议 BPM 范围（如 90-110）",
+      "referenceTracks": ["参考曲目1（可选，描述性即可）", "参考曲目2"],
+      "volumeAdvice": "音量建议（如：口播时-12dB，留白处推上来）"
+    }
   },
   "publish": {
     "title": "包含冲突和好奇点的视频标题",
@@ -307,6 +328,8 @@ ${topicBrief ? `
 12. contentScore：必须给出0-100的评分，mainWeakness必须指出真实风险
 13. 历史经验：如果提供了账号历史内容数据，必须在historicalReference中标注使用了哪些历史经验。如果没有历史数据，usedPreviousSuccess必须为false
 14. 失败规避：如果提供了失败模式，必须在avoidedPatterns中列出这次规避了哪些失败模式
+15. storyboard：必须按镜头拆分，至少4个镜头。每个镜头的scene必须是具体画面描述（不是概念），cameraMovement不能只写"固定机位"，要说明景别和运动方式
+16. bgmRecommendation：style 必须匹配内容情绪曲线（如：开头悬疑→中段紧张→结尾释然），不要只写"轻音乐"。referenceTracks 用风格描述即可，不要编造具体歌曲名
 
 直接输出 JSON，不要其他解释。`
 }
@@ -459,6 +482,7 @@ export default function VideoDirector() {
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [error, setError] = useState('')
   const [copied, setCopied] = useState('')
+  const [exportOpen, setExportOpen] = useState(false)
   const [saved, setSaved] = useState(false)
 
   // 输入状态
@@ -1175,12 +1199,54 @@ export default function VideoDirector() {
                             {r.production.scriptWordCount}字 · {r.production.estimatedDuration}
                           </span>
                         </div>
-                        <button
-                          onClick={() => handleCopy(r.production.fullScript, 'script')}
-                          className="text-xs text-brand-600 hover:text-brand-700 inline-flex items-center gap-1 px-3 py-1 rounded border border-brand-200 hover:bg-brand-50 transition-colors"
-                        >
-                          {copied === 'script' ? <><Check size={12} /> 已复制</> : <><Copy size={12} /> 复制全部</>}
-                        </button>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleCopy(r.production.fullScript, 'script')}
+                            className="text-xs text-brand-600 hover:text-brand-700 inline-flex items-center gap-1 px-3 py-1 rounded border border-brand-200 hover:bg-brand-50 transition-colors"
+                          >
+                            {copied === 'script' ? <><Check size={12} /> 已复制</> : <><Copy size={12} /> 复制全部</>}
+                          </button>
+                          <div className="relative">
+                            <button
+                              onClick={() => setExportOpen(!exportOpen)}
+                              className="text-xs text-white bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 inline-flex items-center gap-1 px-3 py-1 rounded transition-colors shadow-sm"
+                            >
+                              <Download size={12} /> 导出
+                              <ChevronDown size={12} />
+                            </button>
+                            {exportOpen && (
+                              <div className="absolute right-0 top-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10 min-w-[160px]">
+                                <button
+                                  onClick={() => {
+                                    exportStoryboardCSV(r, r.publish?.title || '脚本')
+                                    setExportOpen(false)
+                                  }}
+                                  className="w-full text-left px-3 py-2 text-xs text-gray-700 hover:bg-purple-50 hover:text-purple-700 flex items-center gap-2"
+                                >
+                                  <span>📊</span> 分镜表 CSV
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    exportScriptMarkdown(r, r.publish?.title || '脚本')
+                                    setExportOpen(false)
+                                  }}
+                                  className="w-full text-left px-3 py-2 text-xs text-gray-700 hover:bg-purple-50 hover:text-purple-700 flex items-center gap-2"
+                                >
+                                  <span>📝</span> 完整脚本 Markdown
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    exportScriptTXT(r, r.publish?.title || '脚本')
+                                    setExportOpen(false)
+                                  }}
+                                  className="w-full text-left px-3 py-2 text-xs text-gray-700 hover:bg-purple-50 hover:text-purple-700 flex items-center gap-2"
+                                >
+                                  <span>📄</span> 纯口播稿 TXT
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
                       </div>
 
                       <div className="bg-gray-50 rounded-xl p-5">
@@ -1285,6 +1351,76 @@ export default function VideoDirector() {
                               </li>
                             ))}
                           </ul>
+                        </div>
+                      )}
+
+                      {/* 分镜表 */}
+                      {r.production.storyboard?.length > 0 && (
+                        <div className="mb-4">
+                          <div className="text-xs font-medium text-gray-500 mb-2 flex items-center justify-between">
+                            <span>🎬 分镜脚本（{r.production.storyboard.length} 个镜头）</span>
+                          </div>
+                          <div className="overflow-x-auto rounded-lg border border-gray-200">
+                            <table className="w-full text-xs">
+                              <thead className="bg-purple-50">
+                                <tr>
+                                  <th className="px-2 py-1.5 text-left font-medium text-purple-700 w-10">镜号</th>
+                                  <th className="px-2 py-1.5 text-left font-medium text-purple-700 w-16">时长</th>
+                                  <th className="px-2 py-1.5 text-left font-medium text-purple-700">画面</th>
+                                  <th className="px-2 py-1.5 text-left font-medium text-purple-700">台词</th>
+                                  <th className="px-2 py-1.5 text-left font-medium text-purple-700 w-20">运镜</th>
+                                  <th className="px-2 py-1.5 text-left font-medium text-purple-700 w-24">字幕/贴纸</th>
+                                  <th className="px-2 py-1.5 text-left font-medium text-purple-700 w-24">B-roll</th>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-gray-100">
+                                {r.production.storyboard.map((s, i) => (
+                                  <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}>
+                                    <td className="px-2 py-1.5 font-medium text-purple-600">{s.shot}</td>
+                                    <td className="px-2 py-1.5 text-gray-500">{s.duration}</td>
+                                    <td className="px-2 py-1.5 text-gray-700">{s.scene}</td>
+                                    <td className="px-2 py-1.5 text-gray-900">{s.dialogue}</td>
+                                    <td className="px-2 py-1.5 text-gray-600">{s.cameraMovement}</td>
+                                    <td className="px-2 py-1.5 text-gray-600">{s.onscreenText}</td>
+                                    <td className="px-2 py-1.5 text-gray-600">{s.bRoll}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* BGM 推荐 */}
+                      {r.production.bgmRecommendation && (
+                        <div className="mb-4 rounded-xl bg-gradient-to-r from-pink-50 to-purple-50 border border-pink-100 p-3">
+                          <div className="text-xs font-medium text-gray-500 mb-2">🎵 BGM 推荐</div>
+                          <div className="grid grid-cols-2 gap-2 text-xs">
+                            <div>
+                              <div className="text-gray-500 mb-0.5">风格</div>
+                              <div className="font-medium text-gray-900">{r.production.bgmRecommendation.style}</div>
+                            </div>
+                            <div>
+                              <div className="text-gray-500 mb-0.5">BPM</div>
+                              <div className="font-medium text-gray-900">{r.production.bgmRecommendation.tempoBpm}</div>
+                            </div>
+                            <div className="col-span-2">
+                              <div className="text-gray-500 mb-0.5">情绪匹配</div>
+                              <div className="text-gray-700">{r.production.bgmRecommendation.moodMatch}</div>
+                            </div>
+                            {r.production.bgmRecommendation.referenceTracks?.length > 0 && (
+                              <div className="col-span-2">
+                                <div className="text-gray-500 mb-0.5">参考曲目</div>
+                                <div className="text-gray-700">
+                                  {r.production.bgmRecommendation.referenceTracks.join('　·　')}
+                                </div>
+                              </div>
+                            )}
+                            <div className="col-span-2">
+                              <div className="text-gray-500 mb-0.5">音量建议</div>
+                              <div className="text-gray-700">{r.production.bgmRecommendation.volumeAdvice}</div>
+                            </div>
+                          </div>
                         </div>
                       )}
 

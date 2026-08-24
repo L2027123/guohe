@@ -35,6 +35,7 @@ const AdminAnalytics = lazy(() => import('./pages/AdminAnalytics.jsx'))
 const CaseStudy = lazy(() => import('./pages/CaseStudy.jsx'))
 import { useStore } from './store/useStore'
 import { initTracker } from './utils/tracker'
+import { getStoredLicense } from './utils/license'
 
 // 懒加载时的全局 fallback
 function PageLoading() {
@@ -59,8 +60,12 @@ function HomeRoute() {
 }
 
 export default function App() {
+  const syncFromLicense = useStore((s) => s.syncFromLicense)
+
   useEffect(() => {
     try { initTracker() } catch (_) { /* noop */ }
+    const license = getStoredLicense()
+    if (license) syncFromLicense(license)
   }, [])
 
   return (
