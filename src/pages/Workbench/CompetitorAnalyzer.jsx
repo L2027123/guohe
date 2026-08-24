@@ -115,6 +115,7 @@ export default function CompetitorAnalyzer() {
 
   const [copied, setCopied] = useState('')
   const usingTrial = isUsingTrialKey()
+  const hasApiKey = !!getApiKey()
 
   // ===== CTA 区域状态 =====
   const [showCreateInput, setShowCreateInput] = useState(false)
