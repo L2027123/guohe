@@ -4,7 +4,7 @@
  * - 没配 → 用内置试用 Key（新用户免费体验）
  */
 
-const TRIAL_API_KEY = 'sk-fb81538f70424fc29c65521de6713fdd'
+const TRIAL_API_KEY = 'sk-298c925c46674a5f9d531867d5478acf'
 
 /** 获取当前生效的 API Key（优先用户自己的，没有则用内置试用 Key） */
 export function getApiKey() {
