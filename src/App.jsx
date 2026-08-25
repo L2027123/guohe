@@ -61,9 +61,21 @@ function HomeRoute() {
 
 export default function App() {
   const syncFromLicense = useStore((s) => s.syncFromLicense)
+  const resetStore = useStore((s) => s.resetStore)
 
   useEffect(() => {
     try { initTracker() } catch (_) { /* noop */ }
+    // URL 带 ?reset=1 时强制重置全部数据
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('reset') === '1') {
+      localStorage.removeItem('contentos_v3_store')
+      localStorage.removeItem('guohe_license')
+      localStorage.removeItem('contentos_api_key')
+      localStorage.removeItem('zhipu_api_key')
+      resetStore()
+      // 清除参数，避免每次刷新都重置
+      window.history.replaceState({}, '', window.location.pathname)
+    }
     const license = getStoredLicense()
     if (license) syncFromLicense(license)
   }, [])
