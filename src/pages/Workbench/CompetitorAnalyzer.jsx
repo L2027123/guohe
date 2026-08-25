@@ -179,9 +179,11 @@ export default function CompetitorAnalyzer() {
         return
       }
 
-      const existing = content.trim()
-      const newText = existing ? `${existing}\n\n${text.trim()}` : text.trim()
-      setContent(newText)
+      setContent(text.trim())
+      setTitle('')
+      setAnalysisResult(null)
+      setShowFullReport(false)
+      setError('')
       setOcrStatus('done')
       setShowOcrPreview(true)
     } catch (err) {
@@ -1684,7 +1686,7 @@ export default function CompetitorAnalyzer() {
       )}
 
       {/* 付费弹窗 */}
-      <PricingModal open={showPricing} onClose={() => setShowPricing(false)} />
+      <PricingModal isOpen={showPricing} onClose={() => setShowPricing(false)} />
     </div>
   )
 }
