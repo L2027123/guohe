@@ -1,6 +1,11 @@
-// 截图识别工具 — 使用智谱 GLM-4V-Flash 视觉模型
+// 截图识别工具 — 优先智谱 GLM-4V-Flash，无 Key 时降级 Tesseract.js
 // 智谱 API 支持 CORS，浏览器可直接调用，无需代理
 // GLM-4V-Flash 永久免费，中文 OCR 准确率 95%+
+// Tesseract.js 纯浏览器端，不需要任何 Key，准确率略低但够用
+
+import { recognizeImage } from './ocr'
+
+const TRIAL_ZHIPU_KEY = '374acd1b81ae46e3954ef08f1bb8dcdf.JSiCwye3oiEstCMT'
 
 const ZHIPU_API_URL = 'https://open.bigmodel.cn/api/paas/v4/chat/completions'
 const ZHIPU_MODEL = 'glm-4v-flash'
@@ -49,11 +54,15 @@ function imageToBase64(file, maxWidth = 1600, quality = 0.85) {
  * @returns {Promise<{ text: string, method: 'vision' }>}
  */
 export async function smartRecognize(file, onProgress) {
-  // 智谱 API Key（用户在设置页配置，存 localStorage）
-  const apiKey = localStorage.getItem('zhipu_api_key') || localStorage.getItem('contentos_api_key_zhipu')
+  // 智谱 API Key（用户在设置页配置，存 localStorage，无则用内置试用 Key）
+  const apiKey = localStorage.getItem('zhipu_api_key') || localStorage.getItem('contentos_api_key_zhipu') || TRIAL_ZHIPU_KEY
 
   if (!apiKey) {
-    throw new Error('NO_ZHIPU_KEY')
+    // 无智谱 Key → 降级用 Tesseract.js（纯浏览器端，不需要 Key）
+    if (onProgress) onProgress('ocr', 0)
+    const text = await recognizeImage(file, onProgress)
+    if (!text || text.trim().length < 3) throw new Error('未能识别到文字内容')
+    return { text: text.trim(), method: 'tesseract' }
   }
 
   if (onProgress) onProgress('vision', 10)
