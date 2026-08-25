@@ -65,9 +65,11 @@ export default function App() {
 
   useEffect(() => {
     try { initTracker() } catch (_) { /* noop */ }
-    // URL 带 ?reset=1 时强制重置全部数据
-    const params = new URLSearchParams(window.location.search)
-    if (params.get('reset') === '1') {
+    // URL 带 ?reset=1 时强制重置全部数据（HashRouter 下参数在 hash 里）
+    const hash = window.location.hash || ''
+    const queryString = hash.includes('?') ? hash.split('?')[1] : ''
+    const params = new URLSearchParams(queryString)
+    if (params.get('reset') === '1' || window.location.search.includes('reset=1')) {
       localStorage.removeItem('contentos_v3_store')
       localStorage.removeItem('guohe_license')
       localStorage.removeItem('contentos_api_key')
