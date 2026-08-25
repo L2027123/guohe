@@ -91,8 +91,7 @@ export default function CompetitorAnalyzer() {
       } else {
         setTitle(quickInput)
       }
-      // 试用模式也自动触发分析
-      setTimeout(() => handleAnalyze(quickInput), 100)
+      // 填入内容，等用户自己点按钮
     }
   }, [location.state])
 
