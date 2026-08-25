@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { X, Check, Crown, Users, Loader2, KeyRound, ExternalLink } from 'lucide-react'
-import { activateWithOrder, getStoredLicense, MIANBAODUO_BUY_URL } from '../utils/license'
+import { activateWithOrder, getStoredLicense, MIANBAODUO_BUY_URL, MIANBAODUO_BUY_URL_SINGLE } from '../utils/license'
 import { useStore } from '../store/useStore'
 
 const PLANS = [
@@ -18,6 +18,23 @@ const PLANS = [
     ],
     cta: '当前方案',
     disabled: true,
+    highlight: false,
+  },
+  {
+    id: 'single',
+    name: '单次包',
+    price: '¥2',
+    period: '/次拆解',
+    icon: null,
+    badge: '随用随买',
+    features: [
+      '额外 5 次拆解',
+      '不影响免费额度',
+      '用完即止',
+      '无需订阅',
+    ],
+    cta: '购买 5 次',
+    disabled: false,
     highlight: false,
   },
   {
@@ -65,6 +82,7 @@ export default function PricingModal({ isOpen, onClose }) {
   const [showActivate, setShowActivate] = useState(false)
   const [activateSuccess, setActivateSuccess] = useState(false)
   const upgradeToPro = useStore((s) => s.upgradeToPro)
+  const addCredits = useStore((s) => s.addCredits)
   const plan = useStore((s) => s.plan)
 
   if (!isOpen) return null
@@ -72,7 +90,8 @@ export default function PricingModal({ isOpen, onClose }) {
   const existingLicense = getStoredLicense()
 
   const handleBuy = (tier) => {
-    window.open(MIANBAODUO_BUY_URL, '_blank')
+    const url = tier === 'single' ? MIANBAODUO_BUY_URL_SINGLE : MIANBAODUO_BUY_URL
+    window.open(url, '_blank')
     setShowActivate(true)
   }
 
@@ -86,7 +105,11 @@ export default function PricingModal({ isOpen, onClose }) {
     try {
       const result = await activateWithOrder(orderId.trim())
       if (result.success) {
-        upgradeToPro(result.license.tier === 'lifetime' ? 'lifetime' : 'pro')
+        if (result.license.tier === 'single') {
+          addCredits('competitorAnalyze', 5)
+        } else {
+          upgradeToPro(result.license.tier === 'lifetime' ? 'lifetime' : 'pro')
+        }
         setActivateSuccess(true)
         setTimeout(() => {
           onClose()

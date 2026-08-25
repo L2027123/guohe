@@ -4,6 +4,7 @@ import { useStore } from '../../store/useStore'
 import { callAI, classifyAIError } from '../../utils/aiClient'
 import { generateContentViaAI, parseAIResponse } from '../Pipeline'
 import UpgradePrompt from '../../components/UpgradePrompt'
+import PricingModal from '../../components/PricingModal'
 import { buildAnalysisPrompt } from './analysisPrompt.mjs'
 import { smartRecognize } from '../../utils/visionOCR'
 import { getApiKey, isUsingTrialKey } from '../../utils/apiKey'
@@ -106,6 +107,7 @@ export default function CompetitorAnalyzer() {
   const [error, setError] = useState('')
   const [saved, setSaved] = useState(false)
   const [showFullReport, setShowFullReport] = useState(false)
+  const [showPricing, setShowPricing] = useState(false)
 
   // ===== 第四层：领域 + 生成 =====
   const [userDomain, setUserDomain] = useState('健康养生')
@@ -272,7 +274,7 @@ export default function CompetitorAnalyzer() {
 
     // 额度校验：免费体验限制
     if (!hasCredit('competitorAnalyze')) {
-      setError('免费体验额度已用完，升级 Pro 可无限拆解，或分享报告解锁更多次数')
+      setShowPricing(true)
       return
     }
 
@@ -655,7 +657,14 @@ export default function CompetitorAnalyzer() {
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-100">
                     免费体验剩余：{getRemainingCredits('competitorAnalyze')}/{(credits.freeExperience?.competitorAnalyze ?? 1)}
                   </span>
-                  <span>用完后升级 Pro 可无限拆解</span>
+                  <span>用完后</span>
+                  <button
+                    onClick={() => setShowPricing(true)}
+                    className="text-brand-600 hover:underline font-medium"
+                  >
+                    升级 Pro 可无限拆解
+                  </button>
+                  <span>，或</span>
                   <button
                     onClick={() => {
                       setShowShareUnlock(true)
@@ -1674,6 +1683,9 @@ export default function CompetitorAnalyzer() {
           </div>
         </div>
       )}
+
+      {/* 付费弹窗 */}
+      <PricingModal open={showPricing} onClose={() => setShowPricing(false)} />
     </div>
   )
 }

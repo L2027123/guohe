@@ -67,3 +67,4 @@ export function clearLicense() {
 }
 
 export const MIANBAODUO_BUY_URL = import.meta.env.VITE_MIANBAODUO_BUY_URL || 'https://mbd.pub/o/bread/******'
+export const MIANBAODUO_BUY_URL_SINGLE = import.meta.env.VITE_MIANBAODUO_BUY_URL_SINGLE || 'https://mbd.pub/o/bread/******'

@@ -7,6 +7,7 @@
 //   ACTIVATION_SECRET  —— 激活码签名密钥（任意随机字符串）
 
 const VALID_PRODUCTS = process.env.MIANBAODUO_PRODUCT_KEYS?.split(',').map(s => s.trim()) || []
+const SINGLE_PRODUCT_KEYS = process.env.MIANBAODUO_SINGLE_PRODUCT_KEYS?.split(',').map(s => s.trim()) || []
 
 function sign(data, secret) {
   let h = 0
@@ -50,20 +51,28 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: '订单未完成支付' })
     }
 
-    if (VALID_PRODUCTS.length > 0 && !VALID_PRODUCTS.includes(order.urlkey)) {
-      return res.status(400).json({ error: '此订单不是果核 Pro 订阅，请确认购买的商品正确' })
+    if (VALID_PRODUCTS.length > 0 && !VALID_PRODUCTS.includes(order.urlkey) && !SINGLE_PRODUCT_KEYS.includes(order.urlkey)) {
+      return res.status(400).json({ error: '此订单不是果核产品，请确认购买的商品正确' })
     }
 
+    const isSingle = SINGLE_PRODUCT_KEYS.includes(order.urlkey)
     const now = Math.floor(Date.now() / 1000)
     if (order.expire_at && order.expire_at < now) {
       return res.status(400).json({ error: '订单已过期，请重新购买' })
     }
 
-    const isSubscription = order.rounds != null && order.rounds > 0
-    const tier = isSubscription ? 'pro' : 'pro'
-    const expiresAt = order.expire_at
-      ? order.expire_at * 1000
-      : Date.now() + 30 * 86400000
+    let tier
+    let expiresAt
+    if (isSingle) {
+      tier = 'single'
+      expiresAt = 0
+    } else {
+      const isSubscription = order.rounds != null && order.rounds > 0
+      tier = isSubscription ? 'pro' : 'pro'
+      expiresAt = order.expire_at
+        ? order.expire_at * 1000
+        : Date.now() + 30 * 86400000
+    }
 
     const secret = process.env.ACTIVATION_SECRET || 'guohe-default-secret'
     const signature = sign(order_id + '|' + tier + '|' + expiresAt, secret)
