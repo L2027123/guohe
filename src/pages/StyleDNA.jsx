@@ -1,3 +1,4 @@
+﻿import { getApiKey } from '../utils/apiKey'
 import { useState, useMemo, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
@@ -637,7 +638,7 @@ export default function StyleDNA() {
     setIsAnalyzing(true)
     setAnalyzeError('')
     try {
-      const apiKey = localStorage.getItem('contentos_api_key')
+      const apiKey = getApiKey()
       if (!apiKey) {
         setAnalyzeError('请先在设置页面配置 DeepSeek API Key')
         setIsAnalyzing(false)

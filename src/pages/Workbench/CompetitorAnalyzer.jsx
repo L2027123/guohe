@@ -4,6 +4,7 @@ import { useStore } from '../../store/useStore'
 import { callAI, classifyAIError } from '../../utils/aiClient'
 import { generateContentViaAI, parseAIResponse } from '../Pipeline'
 import UpgradePrompt from '../../components/UpgradePrompt'
+import PricingModal from '../../components/PricingModal'
 import { buildAnalysisPrompt } from './analysisPrompt.mjs'
 import { smartRecognize } from '../../utils/visionOCR'
 import { getApiKey, isUsingTrialKey } from '../../utils/apiKey'
@@ -30,6 +31,7 @@ import {
   ChevronDown,
   Camera,
   Settings,
+  Share2,
 } from 'lucide-react'
 
 // buildAnalysisPrompt 已提取到 ./analysisPrompt.mjs，供本组件与 batch-test.mjs 共用
@@ -90,8 +92,21 @@ export default function CompetitorAnalyzer() {
       } else {
         setTitle(quickInput)
       }
-      // 试用模式也自动触发分析
-      setTimeout(() => handleAnalyze(quickInput), 100)
+      // 填入内容，等用户自己点按钮
+    }
+
+    // DEBUG: 自动化 E2E 注入假分析结果（localStorage.__MOCK_ANALYSIS__）
+    try {
+      const raw = typeof localStorage !== 'undefined' ? localStorage.getItem('__MOCK_ANALYSIS__') : null
+      if (raw) {
+        const mock = JSON.parse(raw)
+        if (mock && mock.diagnosis) {
+          setAnalysisResult(mock)
+          setShowFullReport(false)
+        }
+      }
+    } catch (_e) {
+      /* ignore */
     }
   }, [location.state])
 
@@ -106,6 +121,7 @@ export default function CompetitorAnalyzer() {
   const [error, setError] = useState('')
   const [saved, setSaved] = useState(false)
   const [showFullReport, setShowFullReport] = useState(false)
+  const [showPricing, setShowPricing] = useState(false)
 
   // ===== 第四层：领域 + 生成 =====
   const [userDomain, setUserDomain] = useState('健康养生')
@@ -115,6 +131,7 @@ export default function CompetitorAnalyzer() {
 
   const [copied, setCopied] = useState('')
   const usingTrial = isUsingTrialKey()
+  const hasApiKey = !!getApiKey()
 
   // ===== CTA 区域状态 =====
   const [showCreateInput, setShowCreateInput] = useState(false)
@@ -177,9 +194,11 @@ export default function CompetitorAnalyzer() {
         return
       }
 
-      const existing = content.trim()
-      const newText = existing ? `${existing}\n\n${text.trim()}` : text.trim()
-      setContent(newText)
+      setContent(text.trim())
+      setTitle('')
+      setAnalysisResult(null)
+      setShowFullReport(false)
+      setError('')
       setOcrStatus('done')
       setShowOcrPreview(true)
     } catch (err) {
@@ -271,7 +290,7 @@ export default function CompetitorAnalyzer() {
 
     // 额度校验：免费体验限制
     if (!hasCredit('competitorAnalyze')) {
-      setError('免费体验额度已用完，升级 Pro 可无限拆解，或分享报告解锁更多次数')
+      setShowPricing(true)
       return
     }
 
@@ -374,6 +393,13 @@ export default function CompetitorAnalyzer() {
   }
 
   // ===== 保存到研究库（addContentPattern，不存 decisionReplay）=====
+  const handleAdapt = () => {
+    if (!analysisResult) return
+    navigate('/workbench/platform-adapter', {
+      state: { analysisResult },
+    })
+  }
+
   const handleSave = () => {
     if (!analysisResult) return
     let projectId = currentProjectId
@@ -654,7 +680,14 @@ export default function CompetitorAnalyzer() {
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-100">
                     免费体验剩余：{getRemainingCredits('competitorAnalyze')}/{(credits.freeExperience?.competitorAnalyze ?? 1)}
                   </span>
-                  <span>用完后升级 Pro 可无限拆解</span>
+                  <span>用完后</span>
+                  <button
+                    onClick={() => setShowPricing(true)}
+                    className="text-brand-600 hover:underline font-medium"
+                  >
+                    升级 Pro 可无限拆解
+                  </button>
+                  <span>，或</span>
                   <button
                     onClick={() => {
                       setShowShareUnlock(true)
@@ -713,6 +746,13 @@ export default function CompetitorAnalyzer() {
                   >
                     <RefreshCw className="w-4 h-4" />
                     再拆一条，对比差异
+                  </button>
+                  <button
+                    onClick={handleAdapt}
+                    className="px-4 py-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-1.5"
+                  >
+                    <Share2 className="w-4 h-4" />
+                    适配到其他平台
                   </button>
                   <button
                     onClick={handleSave}
@@ -1673,6 +1713,9 @@ export default function CompetitorAnalyzer() {
           </div>
         </div>
       )}
+
+      {/* 付费弹窗 */}
+      <PricingModal isOpen={showPricing} onClose={() => setShowPricing(false)} />
     </div>
   )
 }

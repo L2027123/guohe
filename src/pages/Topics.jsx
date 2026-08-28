@@ -1,3 +1,4 @@
+﻿import { getApiKey } from '../utils/apiKey'
 import { useNavigate } from 'react-router-dom'
 import { Target, Sparkles, ChevronRight, Filter, Search, Plus, X, Check, Loader2 } from 'lucide-react'
 import { useState, useMemo, useEffect } from 'react'
@@ -89,7 +90,7 @@ export default function Topics() {
       setGenError('请先完成账号 Onboarding')
       return
     }
-    const apiKey = localStorage.getItem('contentos_api_key')
+    const apiKey = getApiKey()
     if (!apiKey) {
       setGenError('请先在设置页面配置 DeepSeek API Key')
       return

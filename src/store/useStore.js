@@ -220,14 +220,45 @@ export const useStore = create(
         })
       },
 
+      syncFromLicense: (license) => {
+        if (!license) return
+        const tier = license.tier === 'lifetime' ? 'lifetime' : 'pro'
+        set({
+          plan: {
+            tier,
+            status: 'active',
+            startedAt: license.startedAt || Date.now(),
+            expiresAt: license.expiresAt || null,
+          },
+          credits: {
+            aiGenerate: Infinity,
+            aiDiagnosis: Infinity,
+            competitorAnalyze: Infinity,
+            performanceReview: Infinity,
+            performanceRecords: Infinity,
+            projects: 10,
+            used: {
+              aiGenerate: 0,
+              aiDiagnosis: 0,
+              competitorAnalyze: 0,
+              performanceReview: 0,
+            },
+          },
+        })
+      },
+
       consumeCredit: (type) => {
         const credits = get().credits
+        if (!credits) return true
         if (credits[type] === Infinity) return true
-        if (credits.used[type] >= credits[type]) return false
+        const used = credits.used || {}
+        if (typeof used[type] !== 'number') used[type] = 0
+        if (typeof credits[type] !== 'number') return true
+        if (used[type] >= credits[type]) return false
         set({
           credits: {
             ...credits,
-            used: { ...credits.used, [type]: credits.used[type] + 1 },
+            used: { ...used, [type]: used[type] + 1 },
           },
         })
         return true
@@ -235,8 +266,12 @@ export const useStore = create(
 
       hasCredit: (type) => {
         const credits = get().credits
+        if (!credits) return true
         if (credits[type] === Infinity) return true
-        return credits.used[type] < credits[type]
+        if (typeof credits[type] !== 'number') return true
+        const used = credits.used || {}
+        const u = typeof used[type] === 'number' ? used[type] : 0
+        return u < credits[type]
       },
 
       getRemainingCredits: (type) => {

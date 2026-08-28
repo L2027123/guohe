@@ -3,6 +3,9 @@
  * 统一 DeepSeek API 调用、错误分类、错误提示
  */
 
+import { getApiKey } from './apiKey'
+import { isPro } from './license'
+
 const API_URL = 'https://api.deepseek.com/v1/chat/completions'
 
 /**
@@ -50,6 +53,10 @@ export function classifyAIError(err) {
  * @returns {Promise<string>} AI 返回的文本内容
  */
 export async function callAI(apiKey, prompt, options = {}) {
+  const effectiveKey = apiKey || getApiKey()
+  if (!effectiveKey) {
+    throw new Error('请先在设置页面配置 DeepSeek API Key')
+  }
   const {
     temperature = 0.7,
     max_tokens = 3000,
@@ -65,7 +72,7 @@ export async function callAI(apiKey, prompt, options = {}) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
+        Authorization: `Bearer ${effectiveKey}`,
       },
       body: JSON.stringify({
         model,

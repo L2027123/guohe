@@ -1,3 +1,4 @@
+﻿import { getApiKey } from '../../utils/apiKey'
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore'
@@ -237,15 +238,6 @@ export default function TopicDirector() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [result, setResult] = useState(null)
-
-  const getApiKey = () => {
-    const key = localStorage.getItem('contentos_api_key')
-    if (!key) {
-      setError('请先在设置页面配置 DeepSeek API Key')
-      return null
-    }
-    return key
-  }
 
   const handleDiscover = async () => {
     const apiKey = getApiKey()

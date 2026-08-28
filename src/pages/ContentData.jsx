@@ -1,3 +1,4 @@
+﻿import { getApiKey } from '../utils/apiKey'
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
@@ -134,7 +135,7 @@ export default function ContentData() {
   }
 
   const handleReview = async (record) => {
-    const apiKey = localStorage.getItem('contentos_api_key')
+    const apiKey = getApiKey()
     if (!apiKey) {
       setReviewStatus((prev) => ({ ...prev, [record.id]: 'error' }))
       setReviewError((prev) => ({ ...prev, [record.id]: '请先在设置页面配置 DeepSeek API Key' }))
@@ -171,7 +172,7 @@ export default function ContentData() {
 
   const formatRate = (rate) => `${((rate || 0) * 100).toFixed(2)}%`
 
-  const hasApiKey = Boolean(localStorage.getItem('contentos_api_key'))
+  const hasApiKey = Boolean(getApiKey())
 
   return (
     <div className="flex flex-col h-full">

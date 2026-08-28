@@ -22,6 +22,7 @@ import {
 } from 'lucide-react'
 import { useStore } from '../store/useStore'
 import { callAI, classifyAIError } from '../utils/aiClient'
+import { getApiKey } from '../utils/apiKey'
 import { trackEvent, trackOnboardingStepEnter } from '../utils/tracker'
 import AIErrorBanner from '../components/AIErrorBanner'
 import { smartRecognize } from '../utils/visionOCR'
@@ -116,7 +117,7 @@ function ScreenshotAnalyzer({ onAnalyzed, hint }) {
       }
 
       // 第二步：AI 理解 OCR 文字（需要 API Key）
-      const apiKey = localStorage.getItem('contentos_api_key')
+      const apiKey = getApiKey()
       if (!apiKey) {
         // OCR 成功但没 API Key：直接用 OCR 文本填入，跳过 AI 分析
         onAnalyzed({
@@ -362,7 +363,7 @@ function ProgressBar({ current, total }) {
 function StepAccountType({ data, update }) {
   const navigate = useNavigate()
   const location = useLocation()
-  const hasApiKey = Boolean(localStorage.getItem('contentos_api_key'))
+  const hasApiKey = !!getApiKey()
 
   const goSettings = () => {
     navigate('/settings', {
@@ -683,7 +684,7 @@ function StepDNAReport({ data, update, onComplete }) {
     setStatus('analyzing')
     setError('')
     try {
-      const apiKey = localStorage.getItem('contentos_api_key')
+      const apiKey = getApiKey()
       if (!apiKey) {
         setError('请先连接 AI 服务，再开始分析')
         setStatus('error')
@@ -932,7 +933,7 @@ ${samplesText}
   }
 
   // ── 待分析：提前检测 API Key，避免点完才失败 ──
-  const hasApiKey = Boolean(localStorage.getItem('contentos_api_key'))
+  const hasApiKey = !!getApiKey()
 
   if (!hasApiKey) {
     return (

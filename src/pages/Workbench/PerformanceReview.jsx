@@ -1,3 +1,4 @@
+﻿import { getApiKey } from '../../utils/apiKey'
 import { useState, useMemo, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore'
@@ -37,7 +38,7 @@ export default function PerformanceReview() {
   const currentProjectId = useStore((s) => s.currentProjectId)
   const projects = useStore((s) => s.projects)
   const allAssets = useStore((s) => s.assets)
-  const apiKey = useStore((s) => s.apiKey) || localStorage.getItem('contentos_api_key') || ''
+  const apiKey = useStore((s) => s.apiKey) || getApiKey() || ''
   const addPerformanceRecord = useStore((s) => s.addPerformanceRecord)
   const analyzePerformanceRecord = useStore((s) => s.analyzePerformanceRecord)
   const learnFromPerformance = useStore((s) => s.learnFromPerformance)

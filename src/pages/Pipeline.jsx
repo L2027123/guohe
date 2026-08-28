@@ -1,3 +1,4 @@
+﻿import { getApiKey } from '../utils/apiKey'
 import { useState, useEffect, useMemo } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { trackFirstContentGeneration, trackEvent } from '../utils/tracker'
@@ -545,7 +546,7 @@ export default function Pipeline() {
     setStrategies([])
     setSelectedStrategy(null)
 
-    const apiKey = localStorage.getItem('contentos_api_key')
+    const apiKey = getApiKey()
     if (!apiKey) {
       setStrategyError('请先在设置页面配置 DeepSeek API Key')
       setIsGeneratingStrategies(false)
@@ -588,7 +589,7 @@ export default function Pipeline() {
     setSaved(false)
     setGeneratedContent(null)
 
-    const apiKey = localStorage.getItem('contentos_api_key')
+    const apiKey = getApiKey()
 
     if (!apiKey) {
       setError('请先在设置页面配置 DeepSeek API Key')
@@ -635,7 +636,7 @@ export default function Pipeline() {
 
   const handleSaveToAssets = () => {
     if (!generatedContent) return
-    const apiKey = localStorage.getItem('contentos_api_key')
+    const apiKey = getApiKey()
     const contentId = addContent(currentProjectId, {
       topicId: generatedContent.topicId,
       title: generatedContent.title,
@@ -1275,7 +1276,7 @@ export default function Pipeline() {
                       一键生成内容
                     </button>
                     <p className="text-xs text-gray-400 mt-3">
-                      {localStorage.getItem('contentos_api_key')
+                      {getApiKey()
                         ? '使用已配置的 API Key'
                         : '未配置 API Key，请先前往设置配置'}
                     </p>

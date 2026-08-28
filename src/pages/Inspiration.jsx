@@ -1,3 +1,4 @@
+﻿import { getApiKey } from '../utils/apiKey'
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
@@ -63,7 +64,7 @@ export default function Inspiration() {
       return
     }
 
-    const apiKey = localStorage.getItem('contentos_api_key')
+    const apiKey = getApiKey()
     if (!apiKey) {
       setError('请先配置 DeepSeek API Key')
       setStatus('error')

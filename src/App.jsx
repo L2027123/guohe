@@ -31,10 +31,12 @@ const OptimizationDirector = lazy(() => import('./pages/Workbench/OptimizationDi
 const TopicDirector = lazy(() => import('./pages/Workbench/TopicDirector.jsx'))
 const PerformanceReview = lazy(() => import('./pages/Workbench/PerformanceReview.jsx'))
 const CaseLibrary = lazy(() => import('./pages/Workbench/CaseLibrary.jsx'))
+const PlatformAdapter = lazy(() => import('./pages/Workbench/PlatformAdapter.jsx'))
 const AdminAnalytics = lazy(() => import('./pages/AdminAnalytics.jsx'))
 const CaseStudy = lazy(() => import('./pages/CaseStudy.jsx'))
 import { useStore } from './store/useStore'
 import { initTracker } from './utils/tracker'
+import { getStoredLicense } from './utils/license'
 
 // 懒加载时的全局 fallback
 function PageLoading() {
@@ -59,8 +61,26 @@ function HomeRoute() {
 }
 
 export default function App() {
+  const syncFromLicense = useStore((s) => s.syncFromLicense)
+  const resetStore = useStore((s) => s.resetStore)
+
   useEffect(() => {
     try { initTracker() } catch (_) { /* noop */ }
+    // URL 带 ?reset=1 时强制重置全部数据（HashRouter 下参数在 hash 里）
+    const hash = window.location.hash || ''
+    const queryString = hash.includes('?') ? hash.split('?')[1] : ''
+    const params = new URLSearchParams(queryString)
+    if (params.get('reset') === '1' || window.location.search.includes('reset=1')) {
+      localStorage.removeItem('contentos_v3_store')
+      localStorage.removeItem('guohe_license')
+      localStorage.removeItem('contentos_api_key')
+      localStorage.removeItem('zhipu_api_key')
+      resetStore()
+      // 清除参数，避免每次刷新都重置
+      window.history.replaceState({}, '', window.location.pathname)
+    }
+    const license = getStoredLicense()
+    if (license) syncFromLicense(license)
   }, [])
 
   return (
@@ -82,6 +102,7 @@ export default function App() {
       <Route element={<Layout />}>
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="workbench/competitor-analyzer" element={<CompetitorAnalyzer />} />
+        <Route path="workbench/platform-adapter" element={<PlatformAdapter />} />
         <Route path="workbench/optimization-director" element={<OptimizationDirector />} />
         <Route path="factory/pipeline" element={<Pipeline />} />
       </Route>

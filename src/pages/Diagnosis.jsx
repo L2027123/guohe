@@ -1,3 +1,4 @@
+﻿import { getApiKey } from '../utils/apiKey'
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
@@ -127,7 +128,7 @@ export default function Diagnosis() {
   }
 
   const handleDiagnose = async () => {
-    const apiKey = localStorage.getItem('contentos_api_key')
+    const apiKey = getApiKey()
     if (!apiKey) {
       setError('请先在设置页面配置 DeepSeek API Key')
       setStatus('error')
@@ -181,7 +182,7 @@ export default function Diagnosis() {
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
   }
 
-  const hasApiKey = Boolean(localStorage.getItem('contentos_api_key'))
+  const hasApiKey = Boolean(getApiKey())
 
   return (
     <div className="flex flex-col h-full">
