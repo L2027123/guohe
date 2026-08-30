@@ -1,9 +1,10 @@
-﻿import { getApiKey } from '../../utils/apiKey'
+import { getApiKey } from '../../utils/apiKey'
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore'
 import { callAI, classifyAIError } from '../../utils/aiClient'
 import { trackModuleClick } from '../../utils/tracker'
+import PricingModal from '../../components/PricingModal'
 import {
   Target,
   Sparkles,
@@ -209,6 +210,9 @@ export default function TopicDirector() {
   const contents = useStore((s) => s.contents)
   const performanceRecords = useStore((s) => s.performanceRecords)
   const getAccountMemory = useStore((s) => s.getAccountMemory)
+  const hasCredit = useStore((s) => s.hasCredit)
+  const consumeCredit = useStore((s) => s.consumeCredit)
+  const credits = useStore((s) => s.credits)
 
   const project = useMemo(
     () => projects.find((p) => p.id === currentProjectId),
@@ -238,10 +242,20 @@ export default function TopicDirector() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [result, setResult] = useState(null)
+  const [showPricing, setShowPricing] = useState(false)
 
   const handleDiscover = async () => {
+    // ① 额度前置校验：复用 aiGenerate 额度（免费 5 次，Pro 无限）
+    if (!hasCredit('aiGenerate')) {
+      setShowPricing(true)
+      return
+    }
+    // ② API Key 前置校验（禁止静默 return，让用户感知问题）
     const apiKey = getApiKey()
-    if (!apiKey) return
+    if (!apiKey) {
+      setError('请先在设置页面配置 DeepSeek API Key')
+      return
+    }
 
     setLoading(true)
     setError('')
@@ -251,7 +265,13 @@ export default function TopicDirector() {
       const prompt = buildTopicPrompt(project, currentDNA, recentTopics, recentContents, projectPerformanceRecords, accountMemory)
       const text = await callAI(apiKey, prompt, { temperature: 0.8, max_tokens: 2000 })
       const parsed = parseTopicResult(text)
-      setResult(parsed)
+      // ③ 成功解析后才扣额度（与 CompetitorAnalyzer 策略一致）
+      if (parsed) {
+        consumeCredit('aiGenerate')
+        setResult(parsed)
+      } else {
+        setError('AI 返回格式异常，请重试，或检查 API Key 是否有效')
+      }
     } catch (err) {
       const classified = classifyAIError(err)
       setError(classified.message || '分析失败，请重试')
@@ -569,6 +589,7 @@ export default function TopicDirector() {
           )}
         </div>
       </div>
+      <PricingModal isOpen={showPricing} onClose={() => setShowPricing(false)} />
     </div>
   )
 }

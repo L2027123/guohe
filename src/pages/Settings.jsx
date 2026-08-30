@@ -142,14 +142,14 @@ export default function Settings() {
                 </span>
               )}
             </div>
-            {/* 付费用户缺少 Key 时的提示 */}
+            {/* 付费用户缺少 Key 时的警告（不提供内置 Key，AI 功能会被阻塞） */}
             {isPro() && !keyStatus && (
               <div className="mb-4 p-3 rounded-lg bg-amber-50 border border-amber-200 text-sm text-amber-800 leading-relaxed flex items-start gap-2">
                 <Crown size={16} className="shrink-0 mt-0.5 text-amber-600" />
                 <div>
                   <div className="font-medium mb-1">Pro 用户请配置你自己的 API Key</div>
                   <div className="text-xs text-amber-700">
-                    付费版本不再提供内置试用 Key，请配置你自己的 DeepSeek API Key 后使用。
+                    付费版本不提供内置 Key，请配置你自己的 DeepSeek API Key 后使用。
                     Key 只保存在你的浏览器本地，我们不会获取或存储。
                   </div>
                 </div>
@@ -263,7 +263,7 @@ export default function Settings() {
                 </span>
               )}
             </div>
-            {/* 恢复试用模式：仅当免费用户已配置自己的 Key 时显示（付费用户不能回退） */}
+            {/* 恢复试用模式：仅免费用户已配自己的 Key 时显示（Pro 没有试用 Key 可回退） */}
             {keyStatus && !isPro() && (
               <div className="mt-4 pt-4 border-t border-gray-50 flex items-center justify-between">
                 <div className="text-xs text-gray-500">

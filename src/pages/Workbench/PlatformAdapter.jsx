@@ -11,17 +11,7 @@ export default function PlatformAdapter() {
   const styleDNA = useStore((s) => s.styleDNA)
 
   // Router state passed from CompetitorAnalyzer: { analysisResult }
-  // DEBUG/E2E fallback: allow mock injection via localStorage when location.state is unavailable
   let analysisResult = location.state?.analysisResult || null
-  if (!analysisResult && typeof localStorage !== 'undefined') {
-    try {
-      const raw = localStorage.getItem('__MOCK_ANALYSIS__')
-      if (raw) {
-        const parsed = JSON.parse(raw)
-        if (parsed && parsed.diagnosis) analysisResult = parsed
-      }
-    } catch (_e) { /* ignore */ }
-  }
 
   const [adaptations, setAdaptations] = useState(null)
   const [activeTab, setActiveTab] = useState('xiaohongshu')

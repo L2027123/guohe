@@ -95,19 +95,6 @@ export default function CompetitorAnalyzer() {
       // 填入内容，等用户自己点按钮
     }
 
-    // DEBUG: 自动化 E2E 注入假分析结果（localStorage.__MOCK_ANALYSIS__）
-    try {
-      const raw = typeof localStorage !== 'undefined' ? localStorage.getItem('__MOCK_ANALYSIS__') : null
-      if (raw) {
-        const mock = JSON.parse(raw)
-        if (mock && mock.diagnosis) {
-          setAnalysisResult(mock)
-          setShowFullReport(false)
-        }
-      }
-    } catch (_e) {
-      /* ignore */
-    }
   }, [location.state])
 
   // ===== 输入状态 =====

@@ -16,7 +16,6 @@ const StyleDNA = lazy(() => import('./pages/StyleDNA.jsx'))
 const Topics = lazy(() => import('./pages/Topics.jsx'))
 const Pipeline = lazy(() => import('./pages/Pipeline.jsx'))
 const Assets = lazy(() => import('./pages/Assets.jsx'))
-const ContentData = lazy(() => import('./pages/ContentData.jsx'))
 const Diagnosis = lazy(() => import('./pages/Diagnosis.jsx'))
 const AIOfficer = lazy(() => import('./pages/AIOfficer.jsx'))
 // V3：工作台聚合入口页
@@ -24,7 +23,6 @@ const OpportunityRadar = lazy(() => import('./pages/Workbench/OpportunityRadar.j
 const AccountBrain = lazy(() => import('./pages/Workbench/AccountBrain.jsx'))
 const VideoDirector = lazy(() => import('./pages/Workbench/VideoDirector.jsx'))
 const AssetsCenter = lazy(() => import('./pages/Workbench/AssetsCenter.jsx'))
-const ContentReview = lazy(() => import('./pages/Workbench/ContentReview.jsx'))
 const CompetitorAnalyzer = lazy(() => import('./pages/Workbench/CompetitorAnalyzer.jsx'))
 const Director = lazy(() => import('./pages/Director.jsx'))
 const OptimizationDirector = lazy(() => import('./pages/Workbench/OptimizationDirector.jsx'))
@@ -47,11 +45,10 @@ function PageLoading() {
   )
 }
 
-// 受保护路由守卫：未完成 onboarding 或无项目时跳转 Onboarding，避免 Landing 死循环
+// 受保护路由守卫：无项目时跳转 Onboarding
 function ProtectedGuard({ children }) {
   const projects = useStore((s) => s.projects)
-  const onboardingCompleted = useStore((s) => s.onboardingCompleted)
-  if (onboardingCompleted && projects.length > 0) return children
+  if (projects.length > 0) return children
   return <Navigate to="/onboarding" replace />
 }
 
@@ -115,7 +112,6 @@ export default function App() {
         <Route path="workbench/director" element={<Director />} />
         <Route path="workbench/topic-director" element={<TopicDirector />} />
         <Route path="workbench/assets-center" element={<AssetsCenter />} />
-        <Route path="workbench/content-review" element={<ContentReview />} />
         <Route path="workbench/case-library" element={<CaseLibrary />} />
         <Route path="workbench/performance-review" element={<PerformanceReview />} />
         {/* factory/video-director 也是视频导演的别名入口 */}
@@ -127,12 +123,14 @@ export default function App() {
         <Route path="factory/style-dna" element={<StyleDNA />} />
         <Route path="factory/topics" element={<Topics />} />
         <Route path="factory/assets" element={<Assets />} />
-        <Route path="data-center/content-data" element={<ContentData />} />
         <Route path="data-center/diagnosis" element={<Diagnosis />} />
         <Route path="ai-team/ai-officer" element={<AIOfficer />} />
       </Route>
       {/* 兜底旧路径兼容：/dashboard 历史链接重定向 */}
       <Route path="/redirected-dashboard" element={<Navigate to="/dashboard" replace />} />
+      {/* 已合并页面重定向：ContentReview / ContentData → PerformanceReview */}
+      <Route path="/workbench/content-review" element={<Navigate to="/workbench/performance-review" replace />} />
+      <Route path="/data-center/content-data" element={<Navigate to="/workbench/performance-review" replace />} />
       </Routes>
       </Suspense>
     </ErrorBoundary>

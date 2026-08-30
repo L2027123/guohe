@@ -172,6 +172,8 @@ function migrate(state) {
     }))
   }
 
+  // 兜底：确保返回的 state.version 与 persist 配置一致，避免"未来版本数据"误判为迁移失败
+  s.version = 11
   return s
 }
 
@@ -1115,7 +1117,7 @@ export const useStore = create(
     }),
     {
       name: STORAGE_KEY,
-      version: 10,
+      version: 11,
       partialize: (state) => ({
         version: state.version,
         user: state.user,

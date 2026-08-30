@@ -91,7 +91,7 @@ export default function AssetsCenter() {
       title: '数据复盘',
       desc: '记录每篇内容的表现数据，分析规律反馈到内容规则',
       badge: `${projectRecords.length} 条记录`,
-      path: '/data-center/content-data',
+      path: '/workbench/performance-review',
       color: 'emerald',
     },
   ]
@@ -295,7 +295,7 @@ export default function AssetsCenter() {
               )}
               {projectRecords.length === 0 && projectAssets.length > 0 && (
                 <div
-                  onClick={() => navigate('/data-center/content-data')}
+                  onClick={() => navigate('/workbench/performance-review')}
                   className="flex items-center justify-between p-3 rounded-lg bg-emerald-50/50 cursor-pointer hover:bg-emerald-50 transition-colors"
                 >
                   <div className="flex items-center gap-3">

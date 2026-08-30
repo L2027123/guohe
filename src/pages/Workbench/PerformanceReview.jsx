@@ -1,8 +1,9 @@
-﻿import { getApiKey } from '../../utils/apiKey'
-import { useState, useMemo, useEffect } from 'react'
+import { getApiKey } from '../../utils/apiKey'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '../../store/useStore'
 import { callAI, classifyAIError } from '../../utils/aiClient'
+import { smartRecognize } from '../../utils/visionOCR'
 import AIErrorBanner from '../../components/AIErrorBanner'
 import UpgradePrompt from '../../components/UpgradePrompt'
 import { usePageDwellTracking } from '../../utils/usePageDwellTracking'
@@ -18,6 +19,7 @@ import {
   ArrowRight,
   Brain,
   Rocket,
+  Camera,
 } from 'lucide-react'
 
 // 默认表单
@@ -30,6 +32,53 @@ const EMPTY_FORM = {
   comments: '',
   saves: '',
   shares: '',
+}
+
+// 从 OCR 识别文本中提取数据指标
+function extractMetricsFromText(text) {
+  const result = { _count: 0 }
+  if (!text) return result
+
+  // 按行扫描，匹配"标签 + 数字"模式
+  const lines = text.split(/\n|，|,|｜|\||\s{2,}/)
+
+  // 关键词到字段的映射（覆盖小红书/抖音/视频号创作者后台常见表述）
+  const fieldKeywords = {
+    views: ['播放', '浏览', '阅读', '观看', '曝光', '展现'],
+    likes: ['点赞', '赞', '喜欢'],
+    comments: ['评论', '留言'],
+    saves: ['收藏', '保存', '星标'],
+    shares: ['转发', '分享', '转载'],
+  }
+
+  for (const line of lines) {
+    // 提取行中所有数字（支持万、千、亿单位）
+    const numMatch = line.match(/([\d,.]+)\s*[万千亿]?/)
+    if (!numMatch) continue
+
+    let numStr = numMatch[1].replace(/,/g, '')
+    let num = parseFloat(numStr)
+    if (isNaN(num)) continue
+
+    // 处理中文单位
+    if (line.includes('万') && num < 1000) num *= 10000
+    else if (line.includes('千') && num < 100) num *= 1000
+    else if (line.includes('亿') && num < 100) num *= 100000000
+
+    num = Math.round(num)
+
+    // 匹配关键词
+    for (const [field, keywords] of Object.entries(fieldKeywords)) {
+      if (result[field] !== undefined) continue // 已填
+      if (keywords.some((kw) => line.includes(kw))) {
+        result[field] = String(num)
+        result._count++
+        break
+      }
+    }
+  }
+
+  return result
 }
 
 export default function PerformanceReview() {
@@ -64,6 +113,9 @@ export default function PerformanceReview() {
   const [error, setError] = useState('')
   const [savedRecordId, setSavedRecordId] = useState(null)
   const [learnedSummary, setLearnedSummary] = useState(null)
+  const [isOCR, setIsOCR] = useState(false)
+  const [ocrProgress, setOCRProgress] = useState('')
+  const fileInputRef = useRef(null)
 
   // 确保账号记忆存在
   useEffect(() => {
@@ -86,6 +138,50 @@ export default function PerformanceReview() {
     setAnalysis(null)
     setSavedRecordId(null)
     setLearnedSummary(null)
+  }
+
+  // 截图 OCR 识别数据并回填
+  const handleScreenshotUpload = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    e.target.value = '' // 允许重复选同一文件
+    setError('')
+    setIsOCR(true)
+    setOCRProgress('正在识别截图...')
+    try {
+      const { text } = await smartRecognize(file, (phase, pct) => {
+        if (phase === 'vision') {
+          setOCRProgress(`AI 视觉识别中 ${pct}%`)
+        } else if (phase === 'ocr') {
+          setOCRProgress(`文字识别中 ${pct}%`)
+        } else if (phase === 'init') {
+          setOCRProgress('正在初始化识别引擎...')
+        }
+      })
+
+      // 从识别文本中提取数字
+      const extracted = extractMetricsFromText(text)
+      if (extracted._count > 0) {
+        setForm((f) => ({
+          ...f,
+          views: extracted.views ?? f.views,
+          likes: extracted.likes ?? f.likes,
+          comments: extracted.comments ?? f.comments,
+          saves: extracted.saves ?? f.saves,
+          shares: extracted.shares ?? f.shares,
+        }))
+        setOCRProgress(`已识别 ${extracted._count} 个数据项，请核对`)
+        setTimeout(() => setOCRProgress(''), 3000)
+      } else {
+        setOCRProgress('未识别到数据，请手动填写')
+        setTimeout(() => setOCRProgress(''), 3000)
+      }
+    } catch (err) {
+      setError('截图识别失败：' + (err.message || '请重试或手动填写'))
+      setOCRProgress('')
+    } finally {
+      setIsOCR(false)
+    }
   }
 
   // 计算「互动率」辅助显示
@@ -339,7 +435,27 @@ export default function PerformanceReview() {
         </div>
 
         <div className="mt-4 pt-4 border-t border-gray-100">
-          <div className="text-xs text-gray-600 mb-2">真实数据 *</div>
+          <div className="flex items-center justify-between mb-2">
+            <div className="text-xs text-gray-600">真实数据 *</div>
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isOCR}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs text-brand-600 bg-brand-50 hover:bg-brand-100 rounded-lg border border-brand-100 transition-colors disabled:opacity-50"
+            >
+              {isOCR ? <Loader2 size={12} className="animate-spin" /> : <Camera size={12} />}
+              {isOCR ? (ocrProgress || '识别中...') : '截图识别数据'}
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleScreenshotUpload}
+              className="hidden"
+            />
+          </div>
+          {ocrProgress && !isOCR && (
+            <div className="mb-2 text-xs text-brand-600 bg-brand-50/50 px-2 py-1 rounded">{ocrProgress}</div>
+          )}
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
             {[
               { key: 'views', label: '播放量', placeholder: '5000' },

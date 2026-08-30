@@ -1,10 +1,7 @@
 /**
  * API Key 统一管理
- * - 免费/试用用户 → 没配 Key 时用内置试用 Key（免费体验）
- * - 付费用户（Pro / 终身版）→ 必须自己配置 Key，不提供内置 Key
- *
- * 设计原则：
- *   付费用户都是自己的 Key。免费调用只限于试用期。
+ * - 免费/试用用户 → 没配 Key 时用内置试用 Key（运营承担成本）
+ * - 付费用户（Pro / 终身版）→ 必须自己配置 Key，不提供内置 Key（运营不承担 Pro 用量）
  */
 
 import { isPro } from './license'
@@ -12,17 +9,14 @@ import { isPro } from './license'
 const TRIAL_API_KEY = 'sk-298c925c46674a5f9d531867d5478acf'
 
 /** 获取当前生效的 API Key
- * - 付费用户：只返回用户自己配置的 Key，没有则返回 null
- * - 免费用户：优先用户自己的 Key，没有则回退到内置试用 Key
+ * - 有用户自己配的 Key → 优先用
+ * - 付费用户且没配 → 返回 null（强制自己配）
+ * - 免费用户 → 回退到内置试用 Key
  */
 export function getApiKey() {
   const userKey = localStorage.getItem('contentos_api_key')
   if (userKey) return userKey
-
-  // 付费用户不提供内置 Key
   if (isPro()) return null
-
-  // 免费用户回退到试用 Key
   return TRIAL_API_KEY
 }
 
@@ -38,7 +32,7 @@ export function hasUserKey() {
 
 /**
  * 付费用户是否缺少自己的 Key
- * - 付费用户 + 没配置 Key → true
+ * - 付费用户 + 没配置 → true，此时 AI 功能会提示需要配 Key
  * - 其他情况 → false
  */
 export function isPaidUserMissingKey() {

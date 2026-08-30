@@ -1,4 +1,4 @@
-﻿import { getApiKey } from '../utils/apiKey'
+import { getApiKey } from '../utils/apiKey'
 import { useState, useMemo, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
@@ -1154,7 +1154,7 @@ export default function StyleDNA() {
                 title="复盘表现数据"
                 desc="记录内容表现，AI 从数据中学习"
                 color="blue"
-                onClick={() => navigate('/data-center/content-data')}
+                onClick={() => navigate('/workbench/performance-review')}
               />
               <TrainingEntry
                 icon={Stethoscope}
